@@ -907,15 +907,21 @@ const Shop = ({
             const stickersEarned = getStickersEarned(bodyUpgrades[body.id]);
             const totalLevels = getTotalLevels(bodyUpgrades[body.id]);
 
+            // Check if previous body has all stickers (required to unlock next)
+            const prevBody = index > 0 ? currentGalaxy.bodies[index - 1] : null;
+            const prevStickers = prevBody ? getStickersEarned(bodyUpgrades[prevBody.id]) : MAX_STICKERS;
+            const prevComplete = prevStickers >= MAX_STICKERS;
+            const canUnlock = canAfford && prevComplete;
+
             return (
               <button
                 key={body.id}
-                onClick={() => !isUnlocked && !isFirst && onUnlockBody(body)}
-                disabled={isUnlocked || !canAfford || isFirst}
+                onClick={() => !isUnlocked && !isFirst && canUnlock && onUnlockBody(body)}
+                disabled={isUnlocked || !canUnlock || isFirst}
                 className={`w-full p-4 rounded-xl text-left transition-all ${
                   isCurrent ? 'bg-blue-900/30 border border-blue-500' :
                   isUnlocked ? 'bg-green-900/30 border border-green-700' :
-                  canAfford ? 'bg-gray-800 hover:bg-gray-700' :
+                  canUnlock ? 'bg-gray-800 hover:bg-gray-700' :
                   'bg-gray-800/50 opacity-60'
                 }`}
               >
@@ -941,18 +947,26 @@ const Shop = ({
                       </div>
                       {isCurrent && <span className="text-blue-400 text-sm">Active</span>}
                       {isUnlocked && !isCurrent && <span className="text-green-400 text-sm">Unlocked</span>}
+                      {stickersEarned >= MAX_STICKERS && <span className="text-yellow-400 text-sm">Mastered!</span>}
                     </div>
                     <p className="text-gray-400 text-sm mt-1">
                       Base: +{body.baseTap} tap | +{body.baseEnergy}/sec idle
                     </p>
                     {isUnlocked && (
                       <div className="text-xs text-gray-500 mt-1">
-                        Lv.{totalLevels} • Next sticker: {Math.min((stickersEarned + 1) * STICKER_THRESHOLD, MAX_STICKERS * STICKER_THRESHOLD)}
+                        Lv.{totalLevels} • {stickersEarned >= MAX_STICKERS ? 'All stickers earned!' : `Next sticker: ${Math.min((stickersEarned + 1) * STICKER_THRESHOLD, MAX_STICKERS * STICKER_THRESHOLD)}`}
                       </div>
                     )}
                     {!isUnlocked && !isFirst && (
-                      <div className={`mt-2 font-bold ${canAfford ? 'text-yellow-400' : 'text-gray-500'}`}>
-                        {formatNumber(body.unlockCost)} {theme.energyName}
+                      <div className="mt-2">
+                        {!prevComplete && (
+                          <div className="text-orange-400 text-sm mb-1">
+                            🔒 Complete {prevBody?.name} first ({prevStickers}/{MAX_STICKERS} stickers)
+                          </div>
+                        )}
+                        <div className={`font-bold ${canUnlock ? 'text-yellow-400' : 'text-gray-500'}`}>
+                          {formatNumber(body.unlockCost)} {theme.energyName}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -967,15 +981,25 @@ const Shop = ({
             const isFirst = index === 0;
             const isCurrent = galaxy.id === currentGalaxy.id;
 
+            // Check if all bodies in previous galaxy are mastered (all stickers)
+            const prevGalaxy = index > 0 ? worlds[index - 1] : null;
+            const prevGalaxyComplete = prevGalaxy ? prevGalaxy.bodies.every(b =>
+              getStickersEarned(bodyUpgrades[b.id]) >= MAX_STICKERS
+            ) : true;
+            const prevGalaxyProgress = prevGalaxy ? prevGalaxy.bodies.filter(b =>
+              getStickersEarned(bodyUpgrades[b.id]) >= MAX_STICKERS
+            ).length : 0;
+            const canUnlock = canAfford && prevGalaxyComplete;
+
             return (
               <button
                 key={galaxy.id}
-                onClick={() => !isUnlocked && !isFirst && onUnlockGalaxy(galaxy)}
-                disabled={isUnlocked || !canAfford || isFirst}
+                onClick={() => !isUnlocked && !isFirst && canUnlock && onUnlockGalaxy(galaxy)}
+                disabled={isUnlocked || !canUnlock || isFirst}
                 className={`w-full p-4 rounded-xl text-left transition-all ${
                   isCurrent ? 'bg-purple-900/30 border border-purple-500' :
                   isUnlocked ? 'bg-green-900/30 border border-green-700' :
-                  canAfford ? 'bg-gray-800 hover:bg-gray-700' :
+                  canUnlock ? 'bg-gray-800 hover:bg-gray-700' :
                   'bg-gray-800/50 opacity-60'
                 }`}
               >
@@ -993,8 +1017,15 @@ const Shop = ({
                       {galaxy.bodies.length} {theme.itemLabel.toLowerCase()}s
                     </p>
                     {!isUnlocked && !isFirst && (
-                      <div className={`mt-2 font-bold ${canAfford ? 'text-purple-400' : 'text-gray-500'}`}>
-                        {formatNumber(galaxy.unlockCost)} {theme.energyName}
+                      <div className="mt-2">
+                        {!prevGalaxyComplete && (
+                          <div className="text-orange-400 text-sm mb-1">
+                            🔒 Master all in {prevGalaxy?.name} ({prevGalaxyProgress}/{prevGalaxy?.bodies.length})
+                          </div>
+                        )}
+                        <div className={`font-bold ${canUnlock ? 'text-purple-400' : 'text-gray-500'}`}>
+                          {formatNumber(galaxy.unlockCost)} {theme.energyName}
+                        </div>
                       </div>
                     )}
                   </div>

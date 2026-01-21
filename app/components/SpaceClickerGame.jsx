@@ -16,13 +16,13 @@ const LOCAL_SAVE_KEY = 'space_clicker_local_save';
 // GAME BALANCE CONSTANTS
 // ===========================================
 const UPGRADE_BASE_COSTS = {
-  tap_power: 100,
-  auto_collect: 250,
-  critical_chance: 500,      // % chance for 5x tap
-  energy_multiplier: 1000,   // Multiplies all energy
-  offline_earnings: 2000,    // Earn while away
-  offline_time: 3000,        // +1 hour max offline time
-  auto_tap: 5000,            // Automatic tapping
+  tap_power: 500,
+  auto_collect: 1500,
+  critical_chance: 5000,      // % chance for 5x tap
+  energy_multiplier: 10000,   // Multiplies all energy
+  offline_earnings: 25000,    // Earn while away
+  offline_time: 50000,        // +1 hour max offline time
+  auto_tap: 75000,            // Automatic tapping
 };
 
 const UPGRADE_DESCRIPTIONS = {
@@ -35,9 +35,26 @@ const UPGRADE_DESCRIPTIONS = {
   auto_tap: { name: 'Auto Tapper', icon: '🤖', desc: '+1 automatic tap per second' },
 };
 
-const UPGRADE_COST_MULTIPLIER = 1.15;
+const UPGRADE_COST_MULTIPLIER = 1.18;  // 18% increase per level (slower progression)
 const MILESTONE_10_BONUS = 3;
 const MILESTONE_50_BONUS = 5;
+
+// Sticker system - earn stickers at every 50 total levels
+const STICKER_THRESHOLD = 50;
+const MAX_STICKERS = 6;  // 6 rounds of 50 = 300 total levels
+const STICKER_EMOJIS = ['⭐', '🌟', '💫', '✨', '🏆', '👑'];
+
+// Calculate total upgrade levels for a body
+const getTotalLevels = (bodyUpgrades) => {
+  if (!bodyUpgrades) return 0;
+  return Object.values(bodyUpgrades).reduce((sum, level) => sum + (level || 0), 0);
+};
+
+// Calculate stickers earned for a body (1 sticker per 50 total levels, max 6)
+const getStickersEarned = (bodyUpgrades) => {
+  const totalLevels = getTotalLevels(bodyUpgrades);
+  return Math.min(Math.floor(totalLevels / STICKER_THRESHOLD), MAX_STICKERS);
+};
 
 // Which upgrades are available per body type
 const getAvailableUpgrades = (body, galaxy) => {
@@ -84,23 +101,23 @@ const THEMES = {
         id: 'solar_system', name: 'Solar System', unlockCost: 0,
         bodies: [
           { id: 'sun', name: 'The Sun', color: '#FFD93D', landColor: '#FF8C00', unlockCost: 0, baseEnergy: 1, baseTap: 1, isStar: true, size: 220, emoji: '☀️' },
-          { id: 'mercury', name: 'Mercury', color: '#A0522D', landColor: '#8B4513', unlockCost: 50000, baseEnergy: 2, baseTap: 2, size: 80, emoji: '🪨' },
-          { id: 'venus', name: 'Venus', color: '#DEB887', landColor: '#D2691E', unlockCost: 250000, baseEnergy: 4, baseTap: 4, size: 110, emoji: '🌕' },
-          { id: 'earth', name: 'Earth', color: '#4a90d9', landColor: '#5cb85c', unlockCost: 1000000, baseEnergy: 8, baseTap: 8, size: 120, emoji: '🌍' },
-          { id: 'mars', name: 'Mars', color: '#d9654a', landColor: '#c9553a', unlockCost: 5000000, baseEnergy: 15, baseTap: 15, size: 100, emoji: '🔴' },
-          { id: 'jupiter', name: 'Jupiter', color: '#d9a054', landColor: '#c99044', unlockCost: 25000000, baseEnergy: 35, baseTap: 35, size: 180, emoji: '🟠' },
-          { id: 'saturn', name: 'Saturn', color: '#e8d068', landColor: '#d8c058', unlockCost: 100000000, baseEnergy: 80, baseTap: 80, hasRings: true, size: 170, emoji: '🪐' },
-          { id: 'uranus', name: 'Uranus', color: '#87CEEB', landColor: '#5F9EA0', unlockCost: 500000000, baseEnergy: 175, baseTap: 175, hasRings: true, ringTilt: 90, size: 140, emoji: '🔵' },
-          { id: 'neptune', name: 'Neptune', color: '#5a7bd9', landColor: '#4a6bc9', unlockCost: 2500000000, baseEnergy: 400, baseTap: 400, size: 135, emoji: '🌀' },
-          { id: 'pluto', name: 'Pluto', color: '#a8a8b8', landColor: '#989898', unlockCost: 10000000000, baseEnergy: 900, baseTap: 900, size: 70, emoji: '⚫' },
+          { id: 'mercury', name: 'Mercury', color: '#A0522D', landColor: '#8B4513', unlockCost: 2500000, baseEnergy: 2, baseTap: 2, size: 80, emoji: '🪨' },
+          { id: 'venus', name: 'Venus', color: '#DEB887', landColor: '#D2691E', unlockCost: 12500000, baseEnergy: 4, baseTap: 4, size: 110, emoji: '🌕' },
+          { id: 'earth', name: 'Earth', color: '#4a90d9', landColor: '#5cb85c', unlockCost: 50000000, baseEnergy: 8, baseTap: 8, size: 120, emoji: '🌍' },
+          { id: 'mars', name: 'Mars', color: '#d9654a', landColor: '#c9553a', unlockCost: 250000000, baseEnergy: 15, baseTap: 15, size: 100, emoji: '🔴' },
+          { id: 'jupiter', name: 'Jupiter', color: '#d9a054', landColor: '#c99044', unlockCost: 1250000000, baseEnergy: 35, baseTap: 35, size: 180, emoji: '🟠' },
+          { id: 'saturn', name: 'Saturn', color: '#e8d068', landColor: '#d8c058', unlockCost: 5000000000, baseEnergy: 80, baseTap: 80, hasRings: true, size: 170, emoji: '🪐' },
+          { id: 'uranus', name: 'Uranus', color: '#87CEEB', landColor: '#5F9EA0', unlockCost: 25000000000, baseEnergy: 175, baseTap: 175, hasRings: true, ringTilt: 90, size: 140, emoji: '🔵' },
+          { id: 'neptune', name: 'Neptune', color: '#5a7bd9', landColor: '#4a6bc9', unlockCost: 125000000000, baseEnergy: 400, baseTap: 400, size: 135, emoji: '🌀' },
+          { id: 'pluto', name: 'Pluto', color: '#a8a8b8', landColor: '#989898', unlockCost: 500000000000, baseEnergy: 900, baseTap: 900, size: 70, emoji: '⚫' },
         ]
       },
       {
-        id: 'andromeda', name: 'Andromeda Galaxy', unlockCost: 100000000000,
+        id: 'andromeda', name: 'Andromeda Galaxy', unlockCost: 5000000000000,
         bodies: [
           { id: 'andromeda_core', name: 'Galactic Core', color: '#9370DB', landColor: '#8A2BE2', unlockCost: 0, baseEnergy: 2000, baseTap: 2000, isStar: true, size: 220, emoji: '💜' },
-          { id: 'alpheratz', name: 'Alpheratz Prime', color: '#E6E6FA', landColor: '#D8BFD8', unlockCost: 150000000000, baseEnergy: 3500, baseTap: 3500, size: 140, emoji: '🌟' },
-          { id: 'mirach', name: 'Mirach World', color: '#FF6B6B', landColor: '#EE5A5A', unlockCost: 500000000000, baseEnergy: 6000, baseTap: 6000, size: 160, emoji: '❤️' },
+          { id: 'alpheratz', name: 'Alpheratz Prime', color: '#E6E6FA', landColor: '#D8BFD8', unlockCost: 7500000000000, baseEnergy: 3500, baseTap: 3500, size: 140, emoji: '🌟' },
+          { id: 'mirach', name: 'Mirach World', color: '#FF6B6B', landColor: '#EE5A5A', unlockCost: 25000000000000, baseEnergy: 6000, baseTap: 6000, size: 160, emoji: '❤️' },
         ]
       }
     ]
@@ -119,29 +136,29 @@ const THEMES = {
         id: 'farm', name: 'The Farm', unlockCost: 0,
         bodies: [
           { id: 'chicken', name: 'Chicken', color: '#FFA500', landColor: '#FF8C00', unlockCost: 0, baseEnergy: 1, baseTap: 1, isStar: true, size: 80, emoji: '🐔' },
-          { id: 'sheep', name: 'Sheep', color: '#F5F5DC', landColor: '#E8E8D0', unlockCost: 50000, baseEnergy: 2, baseTap: 2, size: 110, emoji: '🐑' },
-          { id: 'pig', name: 'Pig', color: '#FFB6C1', landColor: '#FF69B4', unlockCost: 250000, baseEnergy: 4, baseTap: 4, size: 130, emoji: '🐷' },
-          { id: 'cow', name: 'Cow', color: '#8B4513', landColor: '#654321', unlockCost: 1000000, baseEnergy: 8, baseTap: 8, size: 160, emoji: '🐄' },
-          { id: 'horse', name: 'Horse', color: '#8B4513', landColor: '#5D3A1A', unlockCost: 5000000, baseEnergy: 15, baseTap: 15, size: 190, emoji: '🐴' },
+          { id: 'sheep', name: 'Sheep', color: '#F5F5DC', landColor: '#E8E8D0', unlockCost: 2500000, baseEnergy: 2, baseTap: 2, size: 110, emoji: '🐑' },
+          { id: 'pig', name: 'Pig', color: '#FFB6C1', landColor: '#FF69B4', unlockCost: 12500000, baseEnergy: 4, baseTap: 4, size: 130, emoji: '🐷' },
+          { id: 'cow', name: 'Cow', color: '#8B4513', landColor: '#654321', unlockCost: 50000000, baseEnergy: 8, baseTap: 8, size: 160, emoji: '🐄' },
+          { id: 'horse', name: 'Horse', color: '#8B4513', landColor: '#5D3A1A', unlockCost: 250000000, baseEnergy: 15, baseTap: 15, size: 190, emoji: '🐴' },
         ]
       },
       {
         // Safari: Smallest to Biggest - Lion → Zebra → Giraffe → Elephant
-        id: 'safari', name: 'Safari', unlockCost: 25000000,
+        id: 'safari', name: 'Safari', unlockCost: 1250000000,
         bodies: [
           { id: 'lion', name: 'Lion', color: '#DAA520', landColor: '#B8860B', unlockCost: 0, baseEnergy: 35, baseTap: 35, isStar: true, size: 140, emoji: '🦁' },
-          { id: 'zebra', name: 'Zebra', color: '#FFFFFF', landColor: '#000000', unlockCost: 50000000, baseEnergy: 50, baseTap: 50, size: 155, emoji: '🦓' },
-          { id: 'giraffe', name: 'Giraffe', color: '#DAA520', landColor: '#8B4513', unlockCost: 100000000, baseEnergy: 80, baseTap: 80, size: 200, emoji: '🦒' },
-          { id: 'elephant', name: 'Elephant', color: '#808080', landColor: '#696969', unlockCost: 500000000, baseEnergy: 175, baseTap: 175, size: 220, emoji: '🐘' },
+          { id: 'zebra', name: 'Zebra', color: '#FFFFFF', landColor: '#000000', unlockCost: 2500000000, baseEnergy: 50, baseTap: 50, size: 155, emoji: '🦓' },
+          { id: 'giraffe', name: 'Giraffe', color: '#DAA520', landColor: '#8B4513', unlockCost: 5000000000, baseEnergy: 80, baseTap: 80, size: 200, emoji: '🦒' },
+          { id: 'elephant', name: 'Elephant', color: '#808080', landColor: '#696969', unlockCost: 25000000000, baseEnergy: 175, baseTap: 175, size: 220, emoji: '🐘' },
         ]
       },
       {
         // Jungle: Smallest to Biggest - Panda → Tiger → Gorilla
-        id: 'jungle', name: 'Jungle', unlockCost: 2500000000,
+        id: 'jungle', name: 'Jungle', unlockCost: 125000000000,
         bodies: [
           { id: 'panda', name: 'Panda', color: '#FFFFFF', landColor: '#000000', unlockCost: 0, baseEnergy: 400, baseTap: 400, isStar: true, size: 150, emoji: '🐼' },
-          { id: 'tiger', name: 'Tiger', color: '#FF8C00', landColor: '#000000', unlockCost: 5000000000, baseEnergy: 600, baseTap: 600, size: 175, emoji: '🐅' },
-          { id: 'gorilla', name: 'Gorilla', color: '#2F2F2F', landColor: '#1A1A1A', unlockCost: 10000000000, baseEnergy: 900, baseTap: 900, size: 200, emoji: '🦍' },
+          { id: 'tiger', name: 'Tiger', color: '#FF8C00', landColor: '#000000', unlockCost: 250000000000, baseEnergy: 600, baseTap: 600, size: 175, emoji: '🐅' },
+          { id: 'gorilla', name: 'Gorilla', color: '#2F2F2F', landColor: '#1A1A1A', unlockCost: 500000000000, baseEnergy: 900, baseTap: 900, size: 200, emoji: '🦍' },
         ]
       }
     ]
@@ -160,29 +177,29 @@ const THEMES = {
         id: 'economy', name: 'Economy Class', unlockCost: 0,
         bodies: [
           { id: 'bicycle', name: 'Bicycle', color: '#4CAF50', landColor: '#388E3C', unlockCost: 0, baseEnergy: 1, baseTap: 1, isStar: true, size: 70, emoji: '🚲' },
-          { id: 'scooter', name: 'Scooter', color: '#9C27B0', landColor: '#7B1FA2', unlockCost: 50000, baseEnergy: 2, baseTap: 2, size: 90, emoji: '🛵' },
-          { id: 'sedan', name: 'Sedan', color: '#2196F3', landColor: '#1976D2', unlockCost: 250000, baseEnergy: 4, baseTap: 4, size: 130, emoji: '🚗' },
-          { id: 'suv', name: 'SUV', color: '#607D8B', landColor: '#455A64', unlockCost: 1000000, baseEnergy: 8, baseTap: 8, size: 150, emoji: '🚙' },
-          { id: 'pickup', name: 'Pickup Truck', color: '#795548', landColor: '#5D4037', unlockCost: 5000000, baseEnergy: 15, baseTap: 15, size: 165, emoji: '🛻' },
+          { id: 'scooter', name: 'Scooter', color: '#9C27B0', landColor: '#7B1FA2', unlockCost: 2500000, baseEnergy: 2, baseTap: 2, size: 90, emoji: '🛵' },
+          { id: 'sedan', name: 'Sedan', color: '#2196F3', landColor: '#1976D2', unlockCost: 12500000, baseEnergy: 4, baseTap: 4, size: 130, emoji: '🚗' },
+          { id: 'suv', name: 'SUV', color: '#607D8B', landColor: '#455A64', unlockCost: 50000000, baseEnergy: 8, baseTap: 8, size: 150, emoji: '🚙' },
+          { id: 'pickup', name: 'Pickup Truck', color: '#795548', landColor: '#5D4037', unlockCost: 250000000, baseEnergy: 15, baseTap: 15, size: 165, emoji: '🛻' },
         ]
       },
       {
         // Luxury: $80k → $350k - BMW → Mercedes → Porsche → Ferrari
-        id: 'luxury', name: 'Luxury Class', unlockCost: 25000000,
+        id: 'luxury', name: 'Luxury Class', unlockCost: 1250000000,
         bodies: [
           { id: 'bmw', name: 'BMW M5', color: '#1E3A8A', landColor: '#1E40AF', unlockCost: 0, baseEnergy: 35, baseTap: 35, isStar: true, size: 140, emoji: '🚘' },
-          { id: 'mercedes', name: 'Mercedes AMG', color: '#1F2937', landColor: '#111827', unlockCost: 50000000, baseEnergy: 50, baseTap: 50, size: 150, emoji: '🏎️' },
-          { id: 'porsche', name: 'Porsche 911', color: '#DC2626', landColor: '#B91C1C', unlockCost: 100000000, baseEnergy: 80, baseTap: 80, size: 160, emoji: '🏎️' },
-          { id: 'ferrari', name: 'Ferrari 488', color: '#EF4444', landColor: '#DC2626', unlockCost: 500000000, baseEnergy: 175, baseTap: 175, size: 170, emoji: '🏎️' },
+          { id: 'mercedes', name: 'Mercedes AMG', color: '#1F2937', landColor: '#111827', unlockCost: 2500000000, baseEnergy: 50, baseTap: 50, size: 150, emoji: '🏎️' },
+          { id: 'porsche', name: 'Porsche 911', color: '#DC2626', landColor: '#B91C1C', unlockCost: 5000000000, baseEnergy: 80, baseTap: 80, size: 160, emoji: '🏎️' },
+          { id: 'ferrari', name: 'Ferrari 488', color: '#EF4444', landColor: '#DC2626', unlockCost: 25000000000, baseEnergy: 175, baseTap: 175, size: 170, emoji: '🏎️' },
         ]
       },
       {
         // Exotic: $400k → $3M+ - Lamborghini → Bugatti → Koenigsegg
-        id: 'exotic', name: 'Exotic Class', unlockCost: 2500000000,
+        id: 'exotic', name: 'Exotic Class', unlockCost: 125000000000,
         bodies: [
           { id: 'lambo', name: 'Lamborghini Aventador', color: '#F59E0B', landColor: '#D97706', unlockCost: 0, baseEnergy: 400, baseTap: 400, isStar: true, size: 155, emoji: '🏎️' },
-          { id: 'bugatti', name: 'Bugatti Chiron', color: '#3B82F6', landColor: '#2563EB', unlockCost: 5000000000, baseEnergy: 600, baseTap: 600, size: 165, emoji: '🏎️' },
-          { id: 'koenigsegg', name: 'Koenigsegg Jesko', color: '#F97316', landColor: '#EA580C', unlockCost: 10000000000, baseEnergy: 900, baseTap: 900, size: 175, emoji: '🚀' },
+          { id: 'bugatti', name: 'Bugatti Chiron', color: '#3B82F6', landColor: '#2563EB', unlockCost: 250000000000, baseEnergy: 600, baseTap: 600, size: 165, emoji: '🏎️' },
+          { id: 'koenigsegg', name: 'Koenigsegg Jesko', color: '#F97316', landColor: '#EA580C', unlockCost: 500000000000, baseEnergy: 900, baseTap: 900, size: 175, emoji: '🚀' },
         ]
       }
     ]
@@ -200,19 +217,19 @@ const THEMES = {
         id: 'snacks', name: 'Snack Bar', unlockCost: 0,
         bodies: [
           { id: 'cookie', name: 'Cookie', color: '#D2691E', landColor: '#8B4513', unlockCost: 0, baseEnergy: 1, baseTap: 1, isStar: true, size: 100, emoji: '🍪' },
-          { id: 'donut', name: 'Donut', color: '#FF69B4', landColor: '#FF1493', unlockCost: 50000, baseEnergy: 2, baseTap: 2, size: 110, emoji: '🍩' },
-          { id: 'icecream', name: 'Ice Cream', color: '#FFC0CB', landColor: '#FFB6C1', unlockCost: 250000, baseEnergy: 4, baseTap: 4, size: 130, emoji: '🍦' },
-          { id: 'cake', name: 'Cake', color: '#FFE4E1', landColor: '#FFC0CB', unlockCost: 1000000, baseEnergy: 8, baseTap: 8, size: 150, emoji: '🎂' },
-          { id: 'pizza', name: 'Pizza', color: '#FFA500', landColor: '#FF8C00', unlockCost: 5000000, baseEnergy: 15, baseTap: 15, size: 160, emoji: '🍕' },
+          { id: 'donut', name: 'Donut', color: '#FF69B4', landColor: '#FF1493', unlockCost: 2500000, baseEnergy: 2, baseTap: 2, size: 110, emoji: '🍩' },
+          { id: 'icecream', name: 'Ice Cream', color: '#FFC0CB', landColor: '#FFB6C1', unlockCost: 12500000, baseEnergy: 4, baseTap: 4, size: 130, emoji: '🍦' },
+          { id: 'cake', name: 'Cake', color: '#FFE4E1', landColor: '#FFC0CB', unlockCost: 50000000, baseEnergy: 8, baseTap: 8, size: 150, emoji: '🎂' },
+          { id: 'pizza', name: 'Pizza', color: '#FFA500', landColor: '#FF8C00', unlockCost: 250000000, baseEnergy: 15, baseTap: 15, size: 160, emoji: '🍕' },
         ]
       },
       {
-        id: 'gourmet', name: 'Gourmet Kitchen', unlockCost: 25000000,
+        id: 'gourmet', name: 'Gourmet Kitchen', unlockCost: 1250000000,
         bodies: [
           { id: 'burger', name: 'Gourmet Burger', color: '#8B4513', landColor: '#654321', unlockCost: 0, baseEnergy: 35, baseTap: 35, isStar: true, size: 160, emoji: '🍔' },
-          { id: 'steak', name: 'Steak', color: '#8B0000', landColor: '#660000', unlockCost: 50000000, baseEnergy: 50, baseTap: 50, size: 150, emoji: '🥩' },
-          { id: 'sushi', name: 'Sushi Platter', color: '#FF6347', landColor: '#FF4500', unlockCost: 100000000, baseEnergy: 80, baseTap: 80, size: 170, emoji: '🍣' },
-          { id: 'lobster', name: 'Lobster', color: '#FF4500', landColor: '#DC143C', unlockCost: 500000000, baseEnergy: 175, baseTap: 175, size: 165, emoji: '🦞' },
+          { id: 'steak', name: 'Steak', color: '#8B0000', landColor: '#660000', unlockCost: 2500000000, baseEnergy: 50, baseTap: 50, size: 150, emoji: '🥩' },
+          { id: 'sushi', name: 'Sushi Platter', color: '#FF6347', landColor: '#FF4500', unlockCost: 5000000000, baseEnergy: 80, baseTap: 80, size: 170, emoji: '🍣' },
+          { id: 'lobster', name: 'Lobster', color: '#FF4500', landColor: '#DC143C', unlockCost: 25000000000, baseEnergy: 175, baseTap: 175, size: 165, emoji: '🦞' },
         ]
       }
     ]
@@ -230,19 +247,19 @@ const THEMES = {
         id: 'casual', name: 'Casual Sports', unlockCost: 0,
         bodies: [
           { id: 'bowling', name: 'Bowling', color: '#FF4500', landColor: '#DC143C', unlockCost: 0, baseEnergy: 1, baseTap: 1, isStar: true, size: 120, emoji: '🎳' },
-          { id: 'golf', name: 'Golf', color: '#228B22', landColor: '#006400', unlockCost: 50000, baseEnergy: 2, baseTap: 2, size: 100, emoji: '⛳' },
-          { id: 'tennis', name: 'Tennis', color: '#ADFF2F', landColor: '#7CFC00', unlockCost: 250000, baseEnergy: 4, baseTap: 4, size: 110, emoji: '🎾' },
-          { id: 'baseball', name: 'Baseball', color: '#FFFFFF', landColor: '#DC143C', unlockCost: 1000000, baseEnergy: 8, baseTap: 8, size: 110, emoji: '⚾' },
-          { id: 'basketball', name: 'Basketball', color: '#FF8C00', landColor: '#FF4500', unlockCost: 5000000, baseEnergy: 15, baseTap: 15, size: 130, emoji: '🏀' },
+          { id: 'golf', name: 'Golf', color: '#228B22', landColor: '#006400', unlockCost: 2500000, baseEnergy: 2, baseTap: 2, size: 100, emoji: '⛳' },
+          { id: 'tennis', name: 'Tennis', color: '#ADFF2F', landColor: '#7CFC00', unlockCost: 12500000, baseEnergy: 4, baseTap: 4, size: 110, emoji: '🎾' },
+          { id: 'baseball', name: 'Baseball', color: '#FFFFFF', landColor: '#DC143C', unlockCost: 50000000, baseEnergy: 8, baseTap: 8, size: 110, emoji: '⚾' },
+          { id: 'basketball', name: 'Basketball', color: '#FF8C00', landColor: '#FF4500', unlockCost: 250000000, baseEnergy: 15, baseTap: 15, size: 130, emoji: '🏀' },
         ]
       },
       {
-        id: 'pro', name: 'Pro League', unlockCost: 25000000,
+        id: 'pro', name: 'Pro League', unlockCost: 1250000000,
         bodies: [
           { id: 'soccer', name: 'Soccer', color: '#FFFFFF', landColor: '#000000', unlockCost: 0, baseEnergy: 35, baseTap: 35, isStar: true, size: 130, emoji: '⚽' },
-          { id: 'football', name: 'Football', color: '#8B4513', landColor: '#654321', unlockCost: 50000000, baseEnergy: 50, baseTap: 50, size: 140, emoji: '🏈' },
-          { id: 'hockey', name: 'Hockey', color: '#000000', landColor: '#1A1A1A', unlockCost: 100000000, baseEnergy: 80, baseTap: 80, size: 120, emoji: '🏒' },
-          { id: 'rugby', name: 'Rugby', color: '#8B0000', landColor: '#660000', unlockCost: 500000000, baseEnergy: 175, baseTap: 175, size: 135, emoji: '🏉' },
+          { id: 'football', name: 'Football', color: '#8B4513', landColor: '#654321', unlockCost: 2500000000, baseEnergy: 50, baseTap: 50, size: 140, emoji: '🏈' },
+          { id: 'hockey', name: 'Hockey', color: '#000000', landColor: '#1A1A1A', unlockCost: 5000000000, baseEnergy: 80, baseTap: 80, size: 120, emoji: '🏒' },
+          { id: 'rugby', name: 'Rugby', color: '#8B0000', landColor: '#660000', unlockCost: 25000000000, baseEnergy: 175, baseTap: 175, size: 135, emoji: '🏉' },
         ]
       }
     ]
@@ -260,19 +277,19 @@ const THEMES = {
         id: 'acoustic', name: 'Acoustic', unlockCost: 0,
         bodies: [
           { id: 'triangle', name: 'Triangle', color: '#C0C0C0', landColor: '#A9A9A9', unlockCost: 0, baseEnergy: 1, baseTap: 1, isStar: true, size: 80, emoji: '🔺' },
-          { id: 'tambourine', name: 'Tambourine', color: '#DAA520', landColor: '#B8860B', unlockCost: 50000, baseEnergy: 2, baseTap: 2, size: 100, emoji: '🪘' },
-          { id: 'guitar', name: 'Guitar', color: '#8B4513', landColor: '#654321', unlockCost: 250000, baseEnergy: 4, baseTap: 4, size: 150, emoji: '🎸' },
-          { id: 'violin', name: 'Violin', color: '#8B4513', landColor: '#5D3A1A', unlockCost: 1000000, baseEnergy: 8, baseTap: 8, size: 130, emoji: '🎻' },
-          { id: 'piano', name: 'Piano', color: '#1A1A1A', landColor: '#FFFFFF', unlockCost: 5000000, baseEnergy: 15, baseTap: 15, size: 180, emoji: '🎹' },
+          { id: 'tambourine', name: 'Tambourine', color: '#DAA520', landColor: '#B8860B', unlockCost: 2500000, baseEnergy: 2, baseTap: 2, size: 100, emoji: '🪘' },
+          { id: 'guitar', name: 'Guitar', color: '#8B4513', landColor: '#654321', unlockCost: 12500000, baseEnergy: 4, baseTap: 4, size: 150, emoji: '🎸' },
+          { id: 'violin', name: 'Violin', color: '#8B4513', landColor: '#5D3A1A', unlockCost: 50000000, baseEnergy: 8, baseTap: 8, size: 130, emoji: '🎻' },
+          { id: 'piano', name: 'Piano', color: '#1A1A1A', landColor: '#FFFFFF', unlockCost: 250000000, baseEnergy: 15, baseTap: 15, size: 180, emoji: '🎹' },
         ]
       },
       {
-        id: 'electric', name: 'Electric', unlockCost: 25000000,
+        id: 'electric', name: 'Electric', unlockCost: 1250000000,
         bodies: [
           { id: 'synth', name: 'Synthesizer', color: '#00FFFF', landColor: '#00CED1', unlockCost: 0, baseEnergy: 35, baseTap: 35, isStar: true, size: 160, emoji: '🎛️' },
-          { id: 'drums', name: 'Drum Kit', color: '#DC143C', landColor: '#B22222', unlockCost: 50000000, baseEnergy: 50, baseTap: 50, size: 180, emoji: '🥁' },
-          { id: 'bass', name: 'Bass Guitar', color: '#4169E1', landColor: '#0000CD', unlockCost: 100000000, baseEnergy: 80, baseTap: 80, size: 160, emoji: '🎸' },
-          { id: 'turntable', name: 'DJ Turntable', color: '#1A1A1A', landColor: '#333333', unlockCost: 500000000, baseEnergy: 175, baseTap: 175, size: 170, emoji: '💿' },
+          { id: 'drums', name: 'Drum Kit', color: '#DC143C', landColor: '#B22222', unlockCost: 2500000000, baseEnergy: 50, baseTap: 50, size: 180, emoji: '🥁' },
+          { id: 'bass', name: 'Bass Guitar', color: '#4169E1', landColor: '#0000CD', unlockCost: 5000000000, baseEnergy: 80, baseTap: 80, size: 160, emoji: '🎸' },
+          { id: 'turntable', name: 'DJ Turntable', color: '#1A1A1A', landColor: '#333333', unlockCost: 25000000000, baseEnergy: 175, baseTap: 175, size: 170, emoji: '💿' },
         ]
       }
     ]
@@ -291,20 +308,20 @@ const THEMES = {
         id: 'shallow', name: 'Shallow Waters', unlockCost: 0,
         bodies: [
           { id: 'starfish', name: 'Starfish', color: '#FF6347', landColor: '#FF4500', unlockCost: 0, baseEnergy: 1, baseTap: 1, isStar: true, size: 70, emoji: '⭐' },
-          { id: 'fish', name: 'Tropical Fish', color: '#FFD700', landColor: '#FFA500', unlockCost: 50000, baseEnergy: 2, baseTap: 2, size: 85, emoji: '🐠' },
-          { id: 'crab', name: 'Crab', color: '#FF4500', landColor: '#DC143C', unlockCost: 250000, baseEnergy: 4, baseTap: 4, size: 100, emoji: '🦀' },
-          { id: 'turtle', name: 'Sea Turtle', color: '#228B22', landColor: '#006400', unlockCost: 1000000, baseEnergy: 8, baseTap: 8, size: 140, emoji: '🐢' },
-          { id: 'dolphin', name: 'Dolphin', color: '#708090', landColor: '#4682B4', unlockCost: 5000000, baseEnergy: 15, baseTap: 15, size: 170, emoji: '🐬' },
+          { id: 'fish', name: 'Tropical Fish', color: '#FFD700', landColor: '#FFA500', unlockCost: 2500000, baseEnergy: 2, baseTap: 2, size: 85, emoji: '🐠' },
+          { id: 'crab', name: 'Crab', color: '#FF4500', landColor: '#DC143C', unlockCost: 12500000, baseEnergy: 4, baseTap: 4, size: 100, emoji: '🦀' },
+          { id: 'turtle', name: 'Sea Turtle', color: '#228B22', landColor: '#006400', unlockCost: 50000000, baseEnergy: 8, baseTap: 8, size: 140, emoji: '🐢' },
+          { id: 'dolphin', name: 'Dolphin', color: '#708090', landColor: '#4682B4', unlockCost: 250000000, baseEnergy: 15, baseTap: 15, size: 170, emoji: '🐬' },
         ]
       },
       {
         // Deep: Smallest to Biggest - Octopus → Shark → Giant Squid → Blue Whale
-        id: 'deep', name: 'Deep Sea', unlockCost: 25000000,
+        id: 'deep', name: 'Deep Sea', unlockCost: 1250000000,
         bodies: [
           { id: 'octopus', name: 'Octopus', color: '#9370DB', landColor: '#8A2BE2', unlockCost: 0, baseEnergy: 35, baseTap: 35, isStar: true, size: 130, emoji: '🐙' },
-          { id: 'shark', name: 'Great White Shark', color: '#708090', landColor: '#2F4F4F', unlockCost: 50000000, baseEnergy: 50, baseTap: 50, size: 170, emoji: '🦈' },
-          { id: 'squid', name: 'Giant Squid', color: '#FF69B4', landColor: '#FF1493', unlockCost: 100000000, baseEnergy: 80, baseTap: 80, size: 190, emoji: '🦑' },
-          { id: 'whale', name: 'Blue Whale', color: '#4169E1', landColor: '#0000CD', unlockCost: 500000000, baseEnergy: 175, baseTap: 175, size: 220, emoji: '🐋' },
+          { id: 'shark', name: 'Great White Shark', color: '#708090', landColor: '#2F4F4F', unlockCost: 2500000000, baseEnergy: 50, baseTap: 50, size: 170, emoji: '🦈' },
+          { id: 'squid', name: 'Giant Squid', color: '#FF69B4', landColor: '#FF1493', unlockCost: 5000000000, baseEnergy: 80, baseTap: 80, size: 190, emoji: '🦑' },
+          { id: 'whale', name: 'Blue Whale', color: '#4169E1', landColor: '#0000CD', unlockCost: 25000000000, baseEnergy: 175, baseTap: 175, size: 220, emoji: '🐋' },
         ]
       }
     ]
@@ -323,20 +340,20 @@ const THEMES = {
         id: 'forest', name: 'Enchanted Forest', unlockCost: 0,
         bodies: [
           { id: 'fairy', name: 'Fairy', color: '#FF69B4', landColor: '#FF1493', unlockCost: 0, baseEnergy: 1, baseTap: 1, isStar: true, size: 60, emoji: '🧚' },
-          { id: 'gnome', name: 'Gnome', color: '#8B4513', landColor: '#654321', unlockCost: 50000, baseEnergy: 2, baseTap: 2, size: 85, emoji: '🧙' },
-          { id: 'elf', name: 'Elf', color: '#228B22', landColor: '#006400', unlockCost: 250000, baseEnergy: 4, baseTap: 4, size: 120, emoji: '🧝' },
-          { id: 'unicorn', name: 'Unicorn', color: '#FFFFFF', landColor: '#FF69B4', unlockCost: 1000000, baseEnergy: 8, baseTap: 8, size: 155, emoji: '🦄' },
-          { id: 'centaur', name: 'Centaur', color: '#8B4513', landColor: '#5D3A1A', unlockCost: 5000000, baseEnergy: 15, baseTap: 15, size: 180, emoji: '🏇' },
+          { id: 'gnome', name: 'Gnome', color: '#8B4513', landColor: '#654321', unlockCost: 2500000, baseEnergy: 2, baseTap: 2, size: 85, emoji: '🧙' },
+          { id: 'elf', name: 'Elf', color: '#228B22', landColor: '#006400', unlockCost: 12500000, baseEnergy: 4, baseTap: 4, size: 120, emoji: '🧝' },
+          { id: 'unicorn', name: 'Unicorn', color: '#FFFFFF', landColor: '#FF69B4', unlockCost: 50000000, baseEnergy: 8, baseTap: 8, size: 155, emoji: '🦄' },
+          { id: 'centaur', name: 'Centaur', color: '#8B4513', landColor: '#5D3A1A', unlockCost: 250000000, baseEnergy: 15, baseTap: 15, size: 180, emoji: '🏇' },
         ]
       },
       {
         // Dragon Mountains: Smallest to Biggest - Phoenix → Griffin → Dragon → Hydra
-        id: 'mountain', name: 'Dragon Mountains', unlockCost: 25000000,
+        id: 'mountain', name: 'Dragon Mountains', unlockCost: 1250000000,
         bodies: [
           { id: 'phoenix', name: 'Phoenix', color: '#FF4500', landColor: '#DC143C', unlockCost: 0, baseEnergy: 35, baseTap: 35, isStar: true, size: 140, emoji: '🔥' },
-          { id: 'griffin', name: 'Griffin', color: '#DAA520', landColor: '#B8860B', unlockCost: 50000000, baseEnergy: 50, baseTap: 50, size: 165, emoji: '🦅' },
-          { id: 'dragon', name: 'Dragon', color: '#228B22', landColor: '#006400', unlockCost: 100000000, baseEnergy: 80, baseTap: 80, size: 195, emoji: '🐉' },
-          { id: 'hydra', name: 'Hydra', color: '#9370DB', landColor: '#8A2BE2', unlockCost: 500000000, baseEnergy: 175, baseTap: 175, size: 220, emoji: '🐲' },
+          { id: 'griffin', name: 'Griffin', color: '#DAA520', landColor: '#B8860B', unlockCost: 2500000000, baseEnergy: 50, baseTap: 50, size: 165, emoji: '🦅' },
+          { id: 'dragon', name: 'Dragon', color: '#228B22', landColor: '#006400', unlockCost: 5000000000, baseEnergy: 80, baseTap: 80, size: 195, emoji: '🐉' },
+          { id: 'hydra', name: 'Hydra', color: '#9370DB', landColor: '#8A2BE2', unlockCost: 25000000000, baseEnergy: 175, baseTap: 175, size: 220, emoji: '🐲' },
         ]
       }
     ]
@@ -354,19 +371,19 @@ const THEMES = {
         id: 'retro', name: 'Retro Tech', unlockCost: 0,
         bodies: [
           { id: 'calculator', name: 'Calculator', color: '#808080', landColor: '#696969', unlockCost: 0, baseEnergy: 1, baseTap: 1, isStar: true, size: 90, emoji: '🧮' },
-          { id: 'walkman', name: 'Walkman', color: '#FFD700', landColor: '#FFA500', unlockCost: 50000, baseEnergy: 2, baseTap: 2, size: 100, emoji: '📻' },
-          { id: 'gameboy', name: 'Game Boy', color: '#C0C0C0', landColor: '#A9A9A9', unlockCost: 250000, baseEnergy: 4, baseTap: 4, size: 110, emoji: '🎮' },
-          { id: 'desktop', name: 'Desktop PC', color: '#F5F5DC', landColor: '#E8E8D0', unlockCost: 1000000, baseEnergy: 8, baseTap: 8, size: 150, emoji: '🖥️' },
-          { id: 'flip', name: 'Flip Phone', color: '#4169E1', landColor: '#0000CD', unlockCost: 5000000, baseEnergy: 15, baseTap: 15, size: 100, emoji: '📱' },
+          { id: 'walkman', name: 'Walkman', color: '#FFD700', landColor: '#FFA500', unlockCost: 2500000, baseEnergy: 2, baseTap: 2, size: 100, emoji: '📻' },
+          { id: 'gameboy', name: 'Game Boy', color: '#C0C0C0', landColor: '#A9A9A9', unlockCost: 12500000, baseEnergy: 4, baseTap: 4, size: 110, emoji: '🎮' },
+          { id: 'desktop', name: 'Desktop PC', color: '#F5F5DC', landColor: '#E8E8D0', unlockCost: 50000000, baseEnergy: 8, baseTap: 8, size: 150, emoji: '🖥️' },
+          { id: 'flip', name: 'Flip Phone', color: '#4169E1', landColor: '#0000CD', unlockCost: 250000000, baseEnergy: 15, baseTap: 15, size: 100, emoji: '📱' },
         ]
       },
       {
-        id: 'modern', name: 'Modern Tech', unlockCost: 25000000,
+        id: 'modern', name: 'Modern Tech', unlockCost: 1250000000,
         bodies: [
           { id: 'smartphone', name: 'Smartphone', color: '#1A1A1A', landColor: '#333333', unlockCost: 0, baseEnergy: 35, baseTap: 35, isStar: true, size: 120, emoji: '📱' },
-          { id: 'laptop', name: 'Laptop', color: '#C0C0C0', landColor: '#A9A9A9', unlockCost: 50000000, baseEnergy: 50, baseTap: 50, size: 150, emoji: '💻' },
-          { id: 'vr', name: 'VR Headset', color: '#1A1A1A', landColor: '#4169E1', unlockCost: 100000000, baseEnergy: 80, baseTap: 80, size: 140, emoji: '🥽' },
-          { id: 'robot', name: 'Robot', color: '#C0C0C0', landColor: '#708090', unlockCost: 500000000, baseEnergy: 175, baseTap: 175, size: 170, emoji: '🤖' },
+          { id: 'laptop', name: 'Laptop', color: '#C0C0C0', landColor: '#A9A9A9', unlockCost: 2500000000, baseEnergy: 50, baseTap: 50, size: 150, emoji: '💻' },
+          { id: 'vr', name: 'VR Headset', color: '#1A1A1A', landColor: '#4169E1', unlockCost: 5000000000, baseEnergy: 80, baseTap: 80, size: 140, emoji: '🥽' },
+          { id: 'robot', name: 'Robot', color: '#C0C0C0', landColor: '#708090', unlockCost: 25000000000, baseEnergy: 175, baseTap: 175, size: 170, emoji: '🤖' },
         ]
       }
     ]
@@ -384,19 +401,19 @@ const THEMES = {
         id: 'flowers', name: 'Flower Garden', unlockCost: 0,
         bodies: [
           { id: 'daisy', name: 'Daisy', color: '#FFFFFF', landColor: '#FFD700', unlockCost: 0, baseEnergy: 1, baseTap: 1, isStar: true, size: 90, emoji: '🌼' },
-          { id: 'tulip', name: 'Tulip', color: '#FF69B4', landColor: '#FF1493', unlockCost: 50000, baseEnergy: 2, baseTap: 2, size: 100, emoji: '🌷' },
-          { id: 'sunflower', name: 'Sunflower', color: '#FFD700', landColor: '#FFA500', unlockCost: 250000, baseEnergy: 4, baseTap: 4, size: 140, emoji: '🌻' },
-          { id: 'rose', name: 'Rose', color: '#DC143C', landColor: '#B22222', unlockCost: 1000000, baseEnergy: 8, baseTap: 8, size: 110, emoji: '🌹' },
-          { id: 'orchid', name: 'Orchid', color: '#9370DB', landColor: '#8A2BE2', unlockCost: 5000000, baseEnergy: 15, baseTap: 15, size: 120, emoji: '🌺' },
+          { id: 'tulip', name: 'Tulip', color: '#FF69B4', landColor: '#FF1493', unlockCost: 2500000, baseEnergy: 2, baseTap: 2, size: 100, emoji: '🌷' },
+          { id: 'sunflower', name: 'Sunflower', color: '#FFD700', landColor: '#FFA500', unlockCost: 12500000, baseEnergy: 4, baseTap: 4, size: 140, emoji: '🌻' },
+          { id: 'rose', name: 'Rose', color: '#DC143C', landColor: '#B22222', unlockCost: 50000000, baseEnergy: 8, baseTap: 8, size: 110, emoji: '🌹' },
+          { id: 'orchid', name: 'Orchid', color: '#9370DB', landColor: '#8A2BE2', unlockCost: 250000000, baseEnergy: 15, baseTap: 15, size: 120, emoji: '🌺' },
         ]
       },
       {
-        id: 'trees', name: 'Forest', unlockCost: 25000000,
+        id: 'trees', name: 'Forest', unlockCost: 1250000000,
         bodies: [
           { id: 'bonsai', name: 'Bonsai', color: '#228B22', landColor: '#8B4513', unlockCost: 0, baseEnergy: 35, baseTap: 35, isStar: true, size: 100, emoji: '🌳' },
-          { id: 'palm', name: 'Palm Tree', color: '#228B22', landColor: '#8B4513', unlockCost: 50000000, baseEnergy: 50, baseTap: 50, size: 180, emoji: '🌴' },
-          { id: 'cherry', name: 'Cherry Blossom', color: '#FFB6C1', landColor: '#8B4513', unlockCost: 100000000, baseEnergy: 80, baseTap: 80, size: 170, emoji: '🌸' },
-          { id: 'redwood', name: 'Redwood', color: '#228B22', landColor: '#654321', unlockCost: 500000000, baseEnergy: 175, baseTap: 175, size: 200, emoji: '🌲' },
+          { id: 'palm', name: 'Palm Tree', color: '#228B22', landColor: '#8B4513', unlockCost: 2500000000, baseEnergy: 50, baseTap: 50, size: 180, emoji: '🌴' },
+          { id: 'cherry', name: 'Cherry Blossom', color: '#FFB6C1', landColor: '#8B4513', unlockCost: 5000000000, baseEnergy: 80, baseTap: 80, size: 170, emoji: '🌸' },
+          { id: 'redwood', name: 'Redwood', color: '#228B22', landColor: '#654321', unlockCost: 25000000000, baseEnergy: 175, baseTap: 175, size: 200, emoji: '🌲' },
         ]
       }
     ]
@@ -846,6 +863,8 @@ const Shop = ({
             const canAfford = energy >= body.unlockCost;
             const isFirst = index === 0;
             const isCurrent = body.id === currentBody.id;
+            const stickersEarned = getStickersEarned(bodyUpgrades[body.id]);
+            const totalLevels = getTotalLevels(bodyUpgrades[body.id]);
 
             return (
               <button
@@ -871,13 +890,25 @@ const Shop = ({
                   />
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-white font-bold">{body.name}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-white font-bold">{body.name}</span>
+                        {stickersEarned > 0 && (
+                          <span className="text-sm" title={`${totalLevels} total levels`}>
+                            {STICKER_EMOJIS.slice(0, stickersEarned).join('')}
+                          </span>
+                        )}
+                      </div>
                       {isCurrent && <span className="text-blue-400 text-sm">Active</span>}
                       {isUnlocked && !isCurrent && <span className="text-green-400 text-sm">Unlocked</span>}
                     </div>
                     <p className="text-gray-400 text-sm mt-1">
                       Base: +{body.baseTap} tap | +{body.baseEnergy}/sec idle
                     </p>
+                    {isUnlocked && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        Lv.{totalLevels} • Next sticker: {Math.min((stickersEarned + 1) * STICKER_THRESHOLD, MAX_STICKERS * STICKER_THRESHOLD)}
+                      </div>
+                    )}
                     {!isUnlocked && !isFirst && (
                       <div className={`mt-2 font-bold ${canAfford ? 'text-yellow-400' : 'text-gray-500'}`}>
                         {formatNumber(body.unlockCost)} {theme.energyName}
@@ -1059,16 +1090,24 @@ const Stats = ({ isOpen, onClose, totalEnergy, bodyUpgrades, unlockedBodies, unl
               <h3 className="text-purple-400 text-sm font-bold uppercase tracking-wider mb-3">{galaxy.name}</h3>
               {galaxy.bodies.filter(b => unlockedBodies.includes(b.id)).map(body => {
                 const upgrades = bodyUpgrades[body.id] || { tap_power: 0, auto_collect: 0 };
+                const stickersEarned = getStickersEarned(upgrades);
+                const totalLevels = getTotalLevels(upgrades);
                 return (
                   <div key={body.id} className="mb-2 p-3 bg-gray-800/50 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-4 h-4 rounded-full" style={{ backgroundColor: body.color }} />
                       <span className="text-white font-medium">{body.name}</span>
+                      {stickersEarned > 0 && (
+                        <span className="text-sm">{STICKER_EMOJIS.slice(0, stickersEarned).join('')}</span>
+                      )}
                       <span className="text-gray-500 text-xs ml-auto">{formatNumber(bodyEnergy[body.id] || 0)} {theme.energyName.toLowerCase()}</span>
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div className="text-gray-400">⚡ Tap: Lv.{upgrades.tap_power}</div>
                       <div className="text-gray-400">🔄 Auto: Lv.{upgrades.auto_collect}</div>
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      Total: Lv.{totalLevels} • {stickersEarned}/{MAX_STICKERS} stickers
                     </div>
                   </div>
                 );
@@ -1703,11 +1742,18 @@ export default function SpaceClickerGame() {
           ‹
         </button>
         <div className="text-center min-w-48">
-          <span className="text-white text-2xl font-bold tracking-widest uppercase block">
-            {currentBody?.name || 'Unknown'}
-          </span>
-          <span className="text-gray-500 text-xs">
-            Energy: {formatNumber(bodyEnergy[currentBody?.id] || 0)}
+          <div className="flex items-center justify-center gap-2">
+            <span className="text-white text-2xl font-bold tracking-widest uppercase">
+              {currentBody?.name || 'Unknown'}
+            </span>
+            {getStickersEarned(currentUpgrades) > 0 && (
+              <span className="text-lg">
+                {STICKER_EMOJIS.slice(0, getStickersEarned(currentUpgrades)).join('')}
+              </span>
+            )}
+          </div>
+          <span className="text-gray-500 text-xs block">
+            Lv.{getTotalLevels(currentUpgrades)} • {currentTheme.energyName}: {formatNumber(bodyEnergy[currentBody?.id] || 0)}
           </span>
         </div>
         <button

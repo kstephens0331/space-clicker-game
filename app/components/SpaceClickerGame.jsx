@@ -7,8 +7,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 // ===========================================
 const API_BASE_URL = '/api/game';
 const SAVE_INTERVAL = 60000; // Save every 1 minute
-const MAX_OFFLINE_HOURS = 8; // Maximum offline earnings: 8 hours
-const MAX_OFFLINE_MS = MAX_OFFLINE_HOURS * 60 * 60 * 1000;
+const BASE_OFFLINE_HOURS = 12; // Starting max offline time
 const LOCAL_SAVE_KEY_BACKUP = 'space_clicker_backup';
 const LOCAL_DEVICE_KEY = 'space_clicker_device_id';
 const LOCAL_SAVE_KEY = 'space_clicker_local_save';
@@ -22,6 +21,7 @@ const UPGRADE_BASE_COSTS = {
   critical_chance: 500,      // % chance for 5x tap
   energy_multiplier: 1000,   // Multiplies all energy
   offline_earnings: 2000,    // Earn while away
+  offline_time: 3000,        // +1 hour max offline time
   auto_tap: 5000,            // Automatic tapping
 };
 
@@ -31,6 +31,7 @@ const UPGRADE_DESCRIPTIONS = {
   critical_chance: { name: 'Critical Strike', icon: '💥', desc: '+2% chance for 5x energy' },
   energy_multiplier: { name: 'Energy Amplifier', icon: '✨', desc: '+5% bonus to all energy' },
   offline_earnings: { name: 'Quantum Harvester', icon: '🌙', desc: '+10% offline earnings' },
+  offline_time: { name: 'Time Dilation', icon: '⏰', desc: '+1 hour max offline time' },
   auto_tap: { name: 'Auto Tapper', icon: '🤖', desc: '+1 automatic tap per second' },
 };
 
@@ -52,9 +53,10 @@ const getAvailableUpgrades = (body, galaxy) => {
     baseUpgrades.push('energy_multiplier');
   }
 
-  // Pluto and beyond get offline earnings
+  // Pluto and beyond get offline earnings + time extension
   if (body.unlockCost >= 10000000000) { // 10B+
     baseUpgrades.push('offline_earnings');
+    baseUpgrades.push('offline_time');
   }
 
   // Other galaxies get auto-tap
@@ -524,6 +526,8 @@ const Shop = ({
                   effectText = `+${(level + 1) * 5}% bonus to all energy`;
                 } else if (upgradeType === 'offline_earnings') {
                   effectText = `${Math.min((level + 1) * 10, 100)}% of auto earnings while away`;
+                } else if (upgradeType === 'offline_time') {
+                  effectText = `Max ${BASE_OFFLINE_HOURS + level + 1} hours offline (currently ${BASE_OFFLINE_HOURS + level}h)`;
                 } else if (upgradeType === 'auto_tap') {
                   effectText = `${level + 1} automatic taps per second`;
                 }
@@ -972,7 +976,16 @@ export default function SpaceClickerGame() {
         if (savedData.updatedAt || savedData.savedAt) {
           const lastSave = new Date(savedData.updatedAt || savedData.savedAt).getTime();
           const now = Date.now();
-          const offlineMs = Math.min(now - lastSave, MAX_OFFLINE_MS);
+          const rawOfflineMs = now - lastSave;
+
+          // Calculate max offline hours based on upgrades (base 12 + 1 per level)
+          let maxOfflineHours = BASE_OFFLINE_HOURS;
+          Object.values(loadedBodyUpgrades).forEach(upgrades => {
+            const timeLevel = upgrades.offline_time || 0;
+            maxOfflineHours = Math.max(maxOfflineHours, BASE_OFFLINE_HOURS + timeLevel);
+          });
+          const maxOfflineMs = maxOfflineHours * 60 * 60 * 1000;
+          const offlineMs = Math.min(rawOfflineMs, maxOfflineMs);
           const offlineSeconds = Math.floor(offlineMs / 1000);
 
           if (offlineSeconds > 60) { // Only count if offline > 1 minute
@@ -1014,7 +1027,8 @@ export default function SpaceClickerGame() {
 
               setShowOfflineEarnings({
                 amount: totalOfflineEarnings,
-                time: hours > 0 ? `${hours}h ${mins}m` : `${mins}m`
+                time: hours > 0 ? `${hours}h ${mins}m` : `${mins}m`,
+                maxHours: maxOfflineHours
               });
             }
           }
@@ -1327,7 +1341,7 @@ export default function SpaceClickerGame() {
               +{formatNumber(showOfflineEarnings.amount)} Energy
             </div>
             <p className="text-gray-500 text-sm mb-4">
-              (Max offline time: {MAX_OFFLINE_HOURS} hours)
+              (Max offline time: {showOfflineEarnings.maxHours} hours)
             </p>
             <button
               onClick={() => setShowOfflineEarnings(null)}

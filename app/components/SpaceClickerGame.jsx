@@ -417,6 +417,47 @@ const THEMES = {
         ]
       }
     ]
+  },
+  labubu: {
+    id: 'labubu',
+    name: 'Labubu Collection',
+    icon: '👹',
+    bgGradient: 'from-pink-950 via-purple-900 to-indigo-950',
+    worldLabel: 'Series',
+    itemLabel: 'Figure',
+    energyName: 'Hearts',
+    worlds: [
+      {
+        // The Monsters Classic - Common to Rare
+        id: 'classics', name: 'The Monsters Classics', unlockCost: 0,
+        bodies: [
+          { id: 'labubu_pink', name: 'Pink Labubu', color: '#FFB6C1', landColor: '#FF69B4', unlockCost: 0, baseEnergy: 1, baseTap: 1, isStar: true, size: 120, emoji: '👹' },
+          { id: 'labubu_blue', name: 'Blue Labubu', color: '#87CEEB', landColor: '#4169E1', unlockCost: 2500000, baseEnergy: 2, baseTap: 2, size: 120, emoji: '👹' },
+          { id: 'labubu_green', name: 'Green Labubu', color: '#98FB98', landColor: '#32CD32', unlockCost: 12500000, baseEnergy: 4, baseTap: 4, size: 125, emoji: '👹' },
+          { id: 'labubu_purple', name: 'Purple Labubu', color: '#DDA0DD', landColor: '#9370DB', unlockCost: 50000000, baseEnergy: 8, baseTap: 8, size: 125, emoji: '👹' },
+          { id: 'labubu_gold', name: 'Gold Labubu', color: '#FFD700', landColor: '#DAA520', unlockCost: 250000000, baseEnergy: 15, baseTap: 15, size: 130, emoji: '👹' },
+        ]
+      },
+      {
+        // Zimomo & Friends - Special Characters
+        id: 'zimomo', name: 'Zimomo & Friends', unlockCost: 1250000000,
+        bodies: [
+          { id: 'zimomo', name: 'Zimomo', color: '#FFA07A', landColor: '#FF6347', unlockCost: 0, baseEnergy: 35, baseTap: 35, isStar: true, size: 115, emoji: '🐰' },
+          { id: 'tycoco', name: 'Tycoco', color: '#D2691E', landColor: '#8B4513', unlockCost: 2500000000, baseEnergy: 50, baseTap: 50, size: 120, emoji: '🦊' },
+          { id: 'pato', name: 'Pato', color: '#FFFF00', landColor: '#FFD700', unlockCost: 5000000000, baseEnergy: 80, baseTap: 80, size: 110, emoji: '🐤' },
+          { id: 'spooky', name: 'Spooky Labubu', color: '#2F2F2F', landColor: '#1A1A1A', unlockCost: 25000000000, baseEnergy: 175, baseTap: 175, size: 130, emoji: '👻' },
+        ]
+      },
+      {
+        // Limited & Mega Collection
+        id: 'limited', name: 'Limited Edition', unlockCost: 125000000000,
+        bodies: [
+          { id: 'labubu_rainbow', name: 'Rainbow Labubu', color: '#FF69B4', landColor: '#9400D3', unlockCost: 0, baseEnergy: 400, baseTap: 400, isStar: true, size: 140, emoji: '🌈' },
+          { id: 'labubu_crystal', name: 'Crystal Labubu', color: '#E0FFFF', landColor: '#00CED1', unlockCost: 250000000000, baseEnergy: 600, baseTap: 600, size: 145, emoji: '💎' },
+          { id: 'mega_labubu', name: 'Mega Labubu 1000%', color: '#FF1493', landColor: '#C71585', unlockCost: 500000000000, baseEnergy: 900, baseTap: 900, size: 200, emoji: '👑' },
+        ]
+      }
+    ]
   }
 };
 

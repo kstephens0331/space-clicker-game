@@ -68,74 +68,346 @@ const getAvailableUpgrades = (body, galaxy) => {
 };
 
 // ===========================================
-// GAME DATA - SOLAR SYSTEM
+// GAME THEMES - 10 VARIANTS
 // ===========================================
-const SOLAR_SYSTEM = {
-  id: 'solar_system',
-  name: 'Solar System',
-  unlockCost: 0,
-  bodies: [
-    { id: 'sun', name: 'The Sun', color: '#FFD93D', landColor: '#FF8C00', unlockCost: 0, baseEnergy: 1, baseTap: 1, isStar: true, size: 220 },
-    { id: 'mercury', name: 'Mercury', color: '#A0522D', landColor: '#8B4513', unlockCost: 50000, baseEnergy: 2, baseTap: 2, size: 80 },
-    { id: 'venus', name: 'Venus', color: '#DEB887', landColor: '#D2691E', unlockCost: 250000, baseEnergy: 4, baseTap: 4, size: 110 },
-    { id: 'earth', name: 'Earth', color: '#4a90d9', landColor: '#5cb85c', unlockCost: 1000000, baseEnergy: 8, baseTap: 8, size: 120 },
-    { id: 'mars', name: 'Mars', color: '#d9654a', landColor: '#c9553a', unlockCost: 5000000, baseEnergy: 15, baseTap: 15, size: 100 },
-    { id: 'jupiter', name: 'Jupiter', color: '#d9a054', landColor: '#c99044', unlockCost: 25000000, baseEnergy: 35, baseTap: 35, size: 180 },
-    { id: 'saturn', name: 'Saturn', color: '#e8d068', landColor: '#d8c058', unlockCost: 100000000, baseEnergy: 80, baseTap: 80, hasRings: true, size: 170 },
-    { id: 'uranus', name: 'Uranus', color: '#87CEEB', landColor: '#5F9EA0', unlockCost: 500000000, baseEnergy: 175, baseTap: 175, hasRings: true, ringTilt: 90, size: 140 },
-    { id: 'neptune', name: 'Neptune', color: '#5a7bd9', landColor: '#4a6bc9', unlockCost: 2500000000, baseEnergy: 400, baseTap: 400, size: 135 },
-    { id: 'pluto', name: 'Pluto', color: '#a8a8b8', landColor: '#989898', unlockCost: 10000000000, baseEnergy: 900, baseTap: 900, size: 70 },
-  ]
-};
-
-// ===========================================
-// GAME DATA - GALAXIES
-// ===========================================
-const GALAXIES = [
-  SOLAR_SYSTEM,
-  {
-    id: 'andromeda',
-    name: 'Andromeda Galaxy',
-    unlockCost: 100000000000, // 100B
-    bodies: [
-      { id: 'andromeda_core', name: 'Galactic Core', color: '#9370DB', landColor: '#8A2BE2', unlockCost: 0, baseEnergy: 2000, baseTap: 2000, isStar: true, size: 220 },
-      { id: 'alpheratz', name: 'Alpheratz Prime', color: '#E6E6FA', landColor: '#D8BFD8', unlockCost: 150000000000, baseEnergy: 3500, baseTap: 3500, size: 140 },
-      { id: 'mirach', name: 'Mirach World', color: '#FF6B6B', landColor: '#EE5A5A', unlockCost: 500000000000, baseEnergy: 6000, baseTap: 6000, size: 160 },
-      { id: 'almach', name: 'Almach Station', color: '#4ECDC4', landColor: '#45B7AA', unlockCost: 2000000000000, baseEnergy: 12000, baseTap: 12000, size: 130 },
+const THEMES = {
+  space: {
+    id: 'space',
+    name: 'Space Explorer',
+    icon: '🚀',
+    bgGradient: 'from-gray-900 via-purple-900 to-black',
+    worldLabel: 'Galaxy',
+    itemLabel: 'Planet',
+    energyName: 'Energy',
+    worlds: [
+      {
+        id: 'solar_system', name: 'Solar System', unlockCost: 0,
+        bodies: [
+          { id: 'sun', name: 'The Sun', color: '#FFD93D', landColor: '#FF8C00', unlockCost: 0, baseEnergy: 1, baseTap: 1, isStar: true, size: 220, emoji: '☀️' },
+          { id: 'mercury', name: 'Mercury', color: '#A0522D', landColor: '#8B4513', unlockCost: 50000, baseEnergy: 2, baseTap: 2, size: 80, emoji: '🪨' },
+          { id: 'venus', name: 'Venus', color: '#DEB887', landColor: '#D2691E', unlockCost: 250000, baseEnergy: 4, baseTap: 4, size: 110, emoji: '🌕' },
+          { id: 'earth', name: 'Earth', color: '#4a90d9', landColor: '#5cb85c', unlockCost: 1000000, baseEnergy: 8, baseTap: 8, size: 120, emoji: '🌍' },
+          { id: 'mars', name: 'Mars', color: '#d9654a', landColor: '#c9553a', unlockCost: 5000000, baseEnergy: 15, baseTap: 15, size: 100, emoji: '🔴' },
+          { id: 'jupiter', name: 'Jupiter', color: '#d9a054', landColor: '#c99044', unlockCost: 25000000, baseEnergy: 35, baseTap: 35, size: 180, emoji: '🟠' },
+          { id: 'saturn', name: 'Saturn', color: '#e8d068', landColor: '#d8c058', unlockCost: 100000000, baseEnergy: 80, baseTap: 80, hasRings: true, size: 170, emoji: '🪐' },
+          { id: 'uranus', name: 'Uranus', color: '#87CEEB', landColor: '#5F9EA0', unlockCost: 500000000, baseEnergy: 175, baseTap: 175, hasRings: true, ringTilt: 90, size: 140, emoji: '🔵' },
+          { id: 'neptune', name: 'Neptune', color: '#5a7bd9', landColor: '#4a6bc9', unlockCost: 2500000000, baseEnergy: 400, baseTap: 400, size: 135, emoji: '🌀' },
+          { id: 'pluto', name: 'Pluto', color: '#a8a8b8', landColor: '#989898', unlockCost: 10000000000, baseEnergy: 900, baseTap: 900, size: 70, emoji: '⚫' },
+        ]
+      },
+      {
+        id: 'andromeda', name: 'Andromeda Galaxy', unlockCost: 100000000000,
+        bodies: [
+          { id: 'andromeda_core', name: 'Galactic Core', color: '#9370DB', landColor: '#8A2BE2', unlockCost: 0, baseEnergy: 2000, baseTap: 2000, isStar: true, size: 220, emoji: '💜' },
+          { id: 'alpheratz', name: 'Alpheratz Prime', color: '#E6E6FA', landColor: '#D8BFD8', unlockCost: 150000000000, baseEnergy: 3500, baseTap: 3500, size: 140, emoji: '🌟' },
+          { id: 'mirach', name: 'Mirach World', color: '#FF6B6B', landColor: '#EE5A5A', unlockCost: 500000000000, baseEnergy: 6000, baseTap: 6000, size: 160, emoji: '❤️' },
+        ]
+      }
     ]
   },
-  {
-    id: 'triangulum',
-    name: 'Triangulum Galaxy',
-    unlockCost: 10000000000000, // 10T
-    bodies: [
-      { id: 'triangulum_core', name: 'Triangle Core', color: '#FF69B4', landColor: '#FF1493', unlockCost: 0, baseEnergy: 25000, baseTap: 25000, isStar: true, size: 220 },
-      { id: 'mothallah', name: 'Mothallah', color: '#00CED1', landColor: '#008B8B', unlockCost: 25000000000000, baseEnergy: 45000, baseTap: 45000, size: 150 },
-      { id: 'deltotum', name: 'Deltotum', color: '#FFD700', landColor: '#FFA500', unlockCost: 100000000000000, baseEnergy: 90000, baseTap: 90000, size: 170 },
+  animals: {
+    id: 'animals',
+    name: 'Animal Kingdom',
+    icon: '🦁',
+    bgGradient: 'from-green-900 via-emerald-800 to-green-950',
+    worldLabel: 'Habitat',
+    itemLabel: 'Animal',
+    energyName: 'Treats',
+    worlds: [
+      {
+        // Farm: Smallest to Biggest - Chicken → Sheep → Pig → Cow → Horse
+        id: 'farm', name: 'The Farm', unlockCost: 0,
+        bodies: [
+          { id: 'chicken', name: 'Chicken', color: '#FFA500', landColor: '#FF8C00', unlockCost: 0, baseEnergy: 1, baseTap: 1, isStar: true, size: 80, emoji: '🐔' },
+          { id: 'sheep', name: 'Sheep', color: '#F5F5DC', landColor: '#E8E8D0', unlockCost: 50000, baseEnergy: 2, baseTap: 2, size: 110, emoji: '🐑' },
+          { id: 'pig', name: 'Pig', color: '#FFB6C1', landColor: '#FF69B4', unlockCost: 250000, baseEnergy: 4, baseTap: 4, size: 130, emoji: '🐷' },
+          { id: 'cow', name: 'Cow', color: '#8B4513', landColor: '#654321', unlockCost: 1000000, baseEnergy: 8, baseTap: 8, size: 160, emoji: '🐄' },
+          { id: 'horse', name: 'Horse', color: '#8B4513', landColor: '#5D3A1A', unlockCost: 5000000, baseEnergy: 15, baseTap: 15, size: 190, emoji: '🐴' },
+        ]
+      },
+      {
+        // Safari: Smallest to Biggest - Lion → Zebra → Giraffe → Elephant
+        id: 'safari', name: 'Safari', unlockCost: 25000000,
+        bodies: [
+          { id: 'lion', name: 'Lion', color: '#DAA520', landColor: '#B8860B', unlockCost: 0, baseEnergy: 35, baseTap: 35, isStar: true, size: 140, emoji: '🦁' },
+          { id: 'zebra', name: 'Zebra', color: '#FFFFFF', landColor: '#000000', unlockCost: 50000000, baseEnergy: 50, baseTap: 50, size: 155, emoji: '🦓' },
+          { id: 'giraffe', name: 'Giraffe', color: '#DAA520', landColor: '#8B4513', unlockCost: 100000000, baseEnergy: 80, baseTap: 80, size: 200, emoji: '🦒' },
+          { id: 'elephant', name: 'Elephant', color: '#808080', landColor: '#696969', unlockCost: 500000000, baseEnergy: 175, baseTap: 175, size: 220, emoji: '🐘' },
+        ]
+      },
+      {
+        // Jungle: Smallest to Biggest - Panda → Tiger → Gorilla
+        id: 'jungle', name: 'Jungle', unlockCost: 2500000000,
+        bodies: [
+          { id: 'panda', name: 'Panda', color: '#FFFFFF', landColor: '#000000', unlockCost: 0, baseEnergy: 400, baseTap: 400, isStar: true, size: 150, emoji: '🐼' },
+          { id: 'tiger', name: 'Tiger', color: '#FF8C00', landColor: '#000000', unlockCost: 5000000000, baseEnergy: 600, baseTap: 600, size: 175, emoji: '🐅' },
+          { id: 'gorilla', name: 'Gorilla', color: '#2F2F2F', landColor: '#1A1A1A', unlockCost: 10000000000, baseEnergy: 900, baseTap: 900, size: 200, emoji: '🦍' },
+        ]
+      }
     ]
   },
-  {
-    id: 'whirlpool',
-    name: 'Whirlpool Galaxy',
-    unlockCost: 500000000000000, // 500T
-    bodies: [
-      { id: 'whirlpool_core', name: 'Vortex Core', color: '#00FF7F', landColor: '#3CB371', unlockCost: 0, baseEnergy: 200000, baseTap: 200000, isStar: true, size: 220 },
-      { id: 'spiral_one', name: 'Spiral Alpha', color: '#BA55D3', landColor: '#9932CC', unlockCost: 750000000000000, baseEnergy: 350000, baseTap: 350000, size: 160 },
-      { id: 'spiral_two', name: 'Spiral Beta', color: '#20B2AA', landColor: '#2E8B57', unlockCost: 2000000000000000, baseEnergy: 700000, baseTap: 700000, size: 175 },
-      { id: 'spiral_three', name: 'Spiral Omega', color: '#FF4500', landColor: '#DC143C', unlockCost: 5000000000000000, baseEnergy: 1500000, baseTap: 1500000, size: 190 },
+  cars: {
+    id: 'cars',
+    name: 'Auto Collection',
+    icon: '🏎️',
+    bgGradient: 'from-slate-900 via-zinc-800 to-neutral-900',
+    worldLabel: 'Garage',
+    itemLabel: 'Vehicle',
+    energyName: 'Speed',
+    worlds: [
+      {
+        // Economy: Cheapest to Most Expensive - ~$0 → $50k
+        id: 'economy', name: 'Economy Class', unlockCost: 0,
+        bodies: [
+          { id: 'bicycle', name: 'Bicycle', color: '#4CAF50', landColor: '#388E3C', unlockCost: 0, baseEnergy: 1, baseTap: 1, isStar: true, size: 70, emoji: '🚲' },
+          { id: 'scooter', name: 'Scooter', color: '#9C27B0', landColor: '#7B1FA2', unlockCost: 50000, baseEnergy: 2, baseTap: 2, size: 90, emoji: '🛵' },
+          { id: 'sedan', name: 'Sedan', color: '#2196F3', landColor: '#1976D2', unlockCost: 250000, baseEnergy: 4, baseTap: 4, size: 130, emoji: '🚗' },
+          { id: 'suv', name: 'SUV', color: '#607D8B', landColor: '#455A64', unlockCost: 1000000, baseEnergy: 8, baseTap: 8, size: 150, emoji: '🚙' },
+          { id: 'pickup', name: 'Pickup Truck', color: '#795548', landColor: '#5D4037', unlockCost: 5000000, baseEnergy: 15, baseTap: 15, size: 165, emoji: '🛻' },
+        ]
+      },
+      {
+        // Luxury: $80k → $350k - BMW → Mercedes → Porsche → Ferrari
+        id: 'luxury', name: 'Luxury Class', unlockCost: 25000000,
+        bodies: [
+          { id: 'bmw', name: 'BMW M5', color: '#1E3A8A', landColor: '#1E40AF', unlockCost: 0, baseEnergy: 35, baseTap: 35, isStar: true, size: 140, emoji: '🚘' },
+          { id: 'mercedes', name: 'Mercedes AMG', color: '#1F2937', landColor: '#111827', unlockCost: 50000000, baseEnergy: 50, baseTap: 50, size: 150, emoji: '🏎️' },
+          { id: 'porsche', name: 'Porsche 911', color: '#DC2626', landColor: '#B91C1C', unlockCost: 100000000, baseEnergy: 80, baseTap: 80, size: 160, emoji: '🏎️' },
+          { id: 'ferrari', name: 'Ferrari 488', color: '#EF4444', landColor: '#DC2626', unlockCost: 500000000, baseEnergy: 175, baseTap: 175, size: 170, emoji: '🏎️' },
+        ]
+      },
+      {
+        // Exotic: $400k → $3M+ - Lamborghini → Bugatti → Koenigsegg
+        id: 'exotic', name: 'Exotic Class', unlockCost: 2500000000,
+        bodies: [
+          { id: 'lambo', name: 'Lamborghini Aventador', color: '#F59E0B', landColor: '#D97706', unlockCost: 0, baseEnergy: 400, baseTap: 400, isStar: true, size: 155, emoji: '🏎️' },
+          { id: 'bugatti', name: 'Bugatti Chiron', color: '#3B82F6', landColor: '#2563EB', unlockCost: 5000000000, baseEnergy: 600, baseTap: 600, size: 165, emoji: '🏎️' },
+          { id: 'koenigsegg', name: 'Koenigsegg Jesko', color: '#F97316', landColor: '#EA580C', unlockCost: 10000000000, baseEnergy: 900, baseTap: 900, size: 175, emoji: '🚀' },
+        ]
+      }
     ]
   },
-  {
-    id: 'sombrero',
-    name: 'Sombrero Galaxy',
-    unlockCost: 25000000000000000, // 25 Quadrillion
-    bodies: [
-      { id: 'sombrero_core', name: 'Hat Core', color: '#FFE4B5', landColor: '#FFDAB9', unlockCost: 0, baseEnergy: 3000000, baseTap: 3000000, isStar: true, size: 220 },
-      { id: 'brim_alpha', name: 'Brim Alpha', color: '#DDA0DD', landColor: '#DA70D6', unlockCost: 50000000000000000, baseEnergy: 5500000, baseTap: 5500000, size: 165 },
-      { id: 'corona_world', name: 'Corona World', color: '#AFEEEE', landColor: '#48D1CC', unlockCost: 150000000000000000, baseEnergy: 12000000, baseTap: 12000000, size: 180 },
+  food: {
+    id: 'food',
+    name: 'Food Paradise',
+    icon: '🍔',
+    bgGradient: 'from-orange-900 via-red-800 to-amber-900',
+    worldLabel: 'Kitchen',
+    itemLabel: 'Dish',
+    energyName: 'Yum',
+    worlds: [
+      {
+        id: 'snacks', name: 'Snack Bar', unlockCost: 0,
+        bodies: [
+          { id: 'cookie', name: 'Cookie', color: '#D2691E', landColor: '#8B4513', unlockCost: 0, baseEnergy: 1, baseTap: 1, isStar: true, size: 100, emoji: '🍪' },
+          { id: 'donut', name: 'Donut', color: '#FF69B4', landColor: '#FF1493', unlockCost: 50000, baseEnergy: 2, baseTap: 2, size: 110, emoji: '🍩' },
+          { id: 'icecream', name: 'Ice Cream', color: '#FFC0CB', landColor: '#FFB6C1', unlockCost: 250000, baseEnergy: 4, baseTap: 4, size: 130, emoji: '🍦' },
+          { id: 'cake', name: 'Cake', color: '#FFE4E1', landColor: '#FFC0CB', unlockCost: 1000000, baseEnergy: 8, baseTap: 8, size: 150, emoji: '🎂' },
+          { id: 'pizza', name: 'Pizza', color: '#FFA500', landColor: '#FF8C00', unlockCost: 5000000, baseEnergy: 15, baseTap: 15, size: 160, emoji: '🍕' },
+        ]
+      },
+      {
+        id: 'gourmet', name: 'Gourmet Kitchen', unlockCost: 25000000,
+        bodies: [
+          { id: 'burger', name: 'Gourmet Burger', color: '#8B4513', landColor: '#654321', unlockCost: 0, baseEnergy: 35, baseTap: 35, isStar: true, size: 160, emoji: '🍔' },
+          { id: 'steak', name: 'Steak', color: '#8B0000', landColor: '#660000', unlockCost: 50000000, baseEnergy: 50, baseTap: 50, size: 150, emoji: '🥩' },
+          { id: 'sushi', name: 'Sushi Platter', color: '#FF6347', landColor: '#FF4500', unlockCost: 100000000, baseEnergy: 80, baseTap: 80, size: 170, emoji: '🍣' },
+          { id: 'lobster', name: 'Lobster', color: '#FF4500', landColor: '#DC143C', unlockCost: 500000000, baseEnergy: 175, baseTap: 175, size: 165, emoji: '🦞' },
+        ]
+      }
+    ]
+  },
+  sports: {
+    id: 'sports',
+    name: 'Sports Arena',
+    icon: '⚽',
+    bgGradient: 'from-blue-900 via-indigo-800 to-blue-950',
+    worldLabel: 'League',
+    itemLabel: 'Sport',
+    energyName: 'Points',
+    worlds: [
+      {
+        id: 'casual', name: 'Casual Sports', unlockCost: 0,
+        bodies: [
+          { id: 'bowling', name: 'Bowling', color: '#FF4500', landColor: '#DC143C', unlockCost: 0, baseEnergy: 1, baseTap: 1, isStar: true, size: 120, emoji: '🎳' },
+          { id: 'golf', name: 'Golf', color: '#228B22', landColor: '#006400', unlockCost: 50000, baseEnergy: 2, baseTap: 2, size: 100, emoji: '⛳' },
+          { id: 'tennis', name: 'Tennis', color: '#ADFF2F', landColor: '#7CFC00', unlockCost: 250000, baseEnergy: 4, baseTap: 4, size: 110, emoji: '🎾' },
+          { id: 'baseball', name: 'Baseball', color: '#FFFFFF', landColor: '#DC143C', unlockCost: 1000000, baseEnergy: 8, baseTap: 8, size: 110, emoji: '⚾' },
+          { id: 'basketball', name: 'Basketball', color: '#FF8C00', landColor: '#FF4500', unlockCost: 5000000, baseEnergy: 15, baseTap: 15, size: 130, emoji: '🏀' },
+        ]
+      },
+      {
+        id: 'pro', name: 'Pro League', unlockCost: 25000000,
+        bodies: [
+          { id: 'soccer', name: 'Soccer', color: '#FFFFFF', landColor: '#000000', unlockCost: 0, baseEnergy: 35, baseTap: 35, isStar: true, size: 130, emoji: '⚽' },
+          { id: 'football', name: 'Football', color: '#8B4513', landColor: '#654321', unlockCost: 50000000, baseEnergy: 50, baseTap: 50, size: 140, emoji: '🏈' },
+          { id: 'hockey', name: 'Hockey', color: '#000000', landColor: '#1A1A1A', unlockCost: 100000000, baseEnergy: 80, baseTap: 80, size: 120, emoji: '🏒' },
+          { id: 'rugby', name: 'Rugby', color: '#8B0000', landColor: '#660000', unlockCost: 500000000, baseEnergy: 175, baseTap: 175, size: 135, emoji: '🏉' },
+        ]
+      }
+    ]
+  },
+  music: {
+    id: 'music',
+    name: 'Music Studio',
+    icon: '🎵',
+    bgGradient: 'from-purple-900 via-fuchsia-800 to-pink-900',
+    worldLabel: 'Genre',
+    itemLabel: 'Instrument',
+    energyName: 'Notes',
+    worlds: [
+      {
+        id: 'acoustic', name: 'Acoustic', unlockCost: 0,
+        bodies: [
+          { id: 'triangle', name: 'Triangle', color: '#C0C0C0', landColor: '#A9A9A9', unlockCost: 0, baseEnergy: 1, baseTap: 1, isStar: true, size: 80, emoji: '🔺' },
+          { id: 'tambourine', name: 'Tambourine', color: '#DAA520', landColor: '#B8860B', unlockCost: 50000, baseEnergy: 2, baseTap: 2, size: 100, emoji: '🪘' },
+          { id: 'guitar', name: 'Guitar', color: '#8B4513', landColor: '#654321', unlockCost: 250000, baseEnergy: 4, baseTap: 4, size: 150, emoji: '🎸' },
+          { id: 'violin', name: 'Violin', color: '#8B4513', landColor: '#5D3A1A', unlockCost: 1000000, baseEnergy: 8, baseTap: 8, size: 130, emoji: '🎻' },
+          { id: 'piano', name: 'Piano', color: '#1A1A1A', landColor: '#FFFFFF', unlockCost: 5000000, baseEnergy: 15, baseTap: 15, size: 180, emoji: '🎹' },
+        ]
+      },
+      {
+        id: 'electric', name: 'Electric', unlockCost: 25000000,
+        bodies: [
+          { id: 'synth', name: 'Synthesizer', color: '#00FFFF', landColor: '#00CED1', unlockCost: 0, baseEnergy: 35, baseTap: 35, isStar: true, size: 160, emoji: '🎛️' },
+          { id: 'drums', name: 'Drum Kit', color: '#DC143C', landColor: '#B22222', unlockCost: 50000000, baseEnergy: 50, baseTap: 50, size: 180, emoji: '🥁' },
+          { id: 'bass', name: 'Bass Guitar', color: '#4169E1', landColor: '#0000CD', unlockCost: 100000000, baseEnergy: 80, baseTap: 80, size: 160, emoji: '🎸' },
+          { id: 'turntable', name: 'DJ Turntable', color: '#1A1A1A', landColor: '#333333', unlockCost: 500000000, baseEnergy: 175, baseTap: 175, size: 170, emoji: '💿' },
+        ]
+      }
+    ]
+  },
+  ocean: {
+    id: 'ocean',
+    name: 'Ocean Depths',
+    icon: '🐋',
+    bgGradient: 'from-blue-950 via-cyan-900 to-teal-900',
+    worldLabel: 'Zone',
+    itemLabel: 'Creature',
+    energyName: 'Bubbles',
+    worlds: [
+      {
+        // Shallow: Smallest to Biggest - Starfish → Fish → Crab → Turtle → Dolphin
+        id: 'shallow', name: 'Shallow Waters', unlockCost: 0,
+        bodies: [
+          { id: 'starfish', name: 'Starfish', color: '#FF6347', landColor: '#FF4500', unlockCost: 0, baseEnergy: 1, baseTap: 1, isStar: true, size: 70, emoji: '⭐' },
+          { id: 'fish', name: 'Tropical Fish', color: '#FFD700', landColor: '#FFA500', unlockCost: 50000, baseEnergy: 2, baseTap: 2, size: 85, emoji: '🐠' },
+          { id: 'crab', name: 'Crab', color: '#FF4500', landColor: '#DC143C', unlockCost: 250000, baseEnergy: 4, baseTap: 4, size: 100, emoji: '🦀' },
+          { id: 'turtle', name: 'Sea Turtle', color: '#228B22', landColor: '#006400', unlockCost: 1000000, baseEnergy: 8, baseTap: 8, size: 140, emoji: '🐢' },
+          { id: 'dolphin', name: 'Dolphin', color: '#708090', landColor: '#4682B4', unlockCost: 5000000, baseEnergy: 15, baseTap: 15, size: 170, emoji: '🐬' },
+        ]
+      },
+      {
+        // Deep: Smallest to Biggest - Octopus → Shark → Giant Squid → Blue Whale
+        id: 'deep', name: 'Deep Sea', unlockCost: 25000000,
+        bodies: [
+          { id: 'octopus', name: 'Octopus', color: '#9370DB', landColor: '#8A2BE2', unlockCost: 0, baseEnergy: 35, baseTap: 35, isStar: true, size: 130, emoji: '🐙' },
+          { id: 'shark', name: 'Great White Shark', color: '#708090', landColor: '#2F4F4F', unlockCost: 50000000, baseEnergy: 50, baseTap: 50, size: 170, emoji: '🦈' },
+          { id: 'squid', name: 'Giant Squid', color: '#FF69B4', landColor: '#FF1493', unlockCost: 100000000, baseEnergy: 80, baseTap: 80, size: 190, emoji: '🦑' },
+          { id: 'whale', name: 'Blue Whale', color: '#4169E1', landColor: '#0000CD', unlockCost: 500000000, baseEnergy: 175, baseTap: 175, size: 220, emoji: '🐋' },
+        ]
+      }
+    ]
+  },
+  fantasy: {
+    id: 'fantasy',
+    name: 'Mythical Realm',
+    icon: '🐉',
+    bgGradient: 'from-indigo-950 via-violet-900 to-purple-950',
+    worldLabel: 'Realm',
+    itemLabel: 'Creature',
+    energyName: 'Magic',
+    worlds: [
+      {
+        // Enchanted Forest: Smallest to Biggest - Fairy → Gnome → Elf → Unicorn → Centaur
+        id: 'forest', name: 'Enchanted Forest', unlockCost: 0,
+        bodies: [
+          { id: 'fairy', name: 'Fairy', color: '#FF69B4', landColor: '#FF1493', unlockCost: 0, baseEnergy: 1, baseTap: 1, isStar: true, size: 60, emoji: '🧚' },
+          { id: 'gnome', name: 'Gnome', color: '#8B4513', landColor: '#654321', unlockCost: 50000, baseEnergy: 2, baseTap: 2, size: 85, emoji: '🧙' },
+          { id: 'elf', name: 'Elf', color: '#228B22', landColor: '#006400', unlockCost: 250000, baseEnergy: 4, baseTap: 4, size: 120, emoji: '🧝' },
+          { id: 'unicorn', name: 'Unicorn', color: '#FFFFFF', landColor: '#FF69B4', unlockCost: 1000000, baseEnergy: 8, baseTap: 8, size: 155, emoji: '🦄' },
+          { id: 'centaur', name: 'Centaur', color: '#8B4513', landColor: '#5D3A1A', unlockCost: 5000000, baseEnergy: 15, baseTap: 15, size: 180, emoji: '🏇' },
+        ]
+      },
+      {
+        // Dragon Mountains: Smallest to Biggest - Phoenix → Griffin → Dragon → Hydra
+        id: 'mountain', name: 'Dragon Mountains', unlockCost: 25000000,
+        bodies: [
+          { id: 'phoenix', name: 'Phoenix', color: '#FF4500', landColor: '#DC143C', unlockCost: 0, baseEnergy: 35, baseTap: 35, isStar: true, size: 140, emoji: '🔥' },
+          { id: 'griffin', name: 'Griffin', color: '#DAA520', landColor: '#B8860B', unlockCost: 50000000, baseEnergy: 50, baseTap: 50, size: 165, emoji: '🦅' },
+          { id: 'dragon', name: 'Dragon', color: '#228B22', landColor: '#006400', unlockCost: 100000000, baseEnergy: 80, baseTap: 80, size: 195, emoji: '🐉' },
+          { id: 'hydra', name: 'Hydra', color: '#9370DB', landColor: '#8A2BE2', unlockCost: 500000000, baseEnergy: 175, baseTap: 175, size: 220, emoji: '🐲' },
+        ]
+      }
+    ]
+  },
+  tech: {
+    id: 'tech',
+    name: 'Tech World',
+    icon: '💻',
+    bgGradient: 'from-gray-900 via-slate-800 to-zinc-900',
+    worldLabel: 'Era',
+    itemLabel: 'Device',
+    energyName: 'Data',
+    worlds: [
+      {
+        id: 'retro', name: 'Retro Tech', unlockCost: 0,
+        bodies: [
+          { id: 'calculator', name: 'Calculator', color: '#808080', landColor: '#696969', unlockCost: 0, baseEnergy: 1, baseTap: 1, isStar: true, size: 90, emoji: '🧮' },
+          { id: 'walkman', name: 'Walkman', color: '#FFD700', landColor: '#FFA500', unlockCost: 50000, baseEnergy: 2, baseTap: 2, size: 100, emoji: '📻' },
+          { id: 'gameboy', name: 'Game Boy', color: '#C0C0C0', landColor: '#A9A9A9', unlockCost: 250000, baseEnergy: 4, baseTap: 4, size: 110, emoji: '🎮' },
+          { id: 'desktop', name: 'Desktop PC', color: '#F5F5DC', landColor: '#E8E8D0', unlockCost: 1000000, baseEnergy: 8, baseTap: 8, size: 150, emoji: '🖥️' },
+          { id: 'flip', name: 'Flip Phone', color: '#4169E1', landColor: '#0000CD', unlockCost: 5000000, baseEnergy: 15, baseTap: 15, size: 100, emoji: '📱' },
+        ]
+      },
+      {
+        id: 'modern', name: 'Modern Tech', unlockCost: 25000000,
+        bodies: [
+          { id: 'smartphone', name: 'Smartphone', color: '#1A1A1A', landColor: '#333333', unlockCost: 0, baseEnergy: 35, baseTap: 35, isStar: true, size: 120, emoji: '📱' },
+          { id: 'laptop', name: 'Laptop', color: '#C0C0C0', landColor: '#A9A9A9', unlockCost: 50000000, baseEnergy: 50, baseTap: 50, size: 150, emoji: '💻' },
+          { id: 'vr', name: 'VR Headset', color: '#1A1A1A', landColor: '#4169E1', unlockCost: 100000000, baseEnergy: 80, baseTap: 80, size: 140, emoji: '🥽' },
+          { id: 'robot', name: 'Robot', color: '#C0C0C0', landColor: '#708090', unlockCost: 500000000, baseEnergy: 175, baseTap: 175, size: 170, emoji: '🤖' },
+        ]
+      }
+    ]
+  },
+  nature: {
+    id: 'nature',
+    name: 'Garden Paradise',
+    icon: '🌸',
+    bgGradient: 'from-green-950 via-lime-900 to-emerald-950',
+    worldLabel: 'Garden',
+    itemLabel: 'Plant',
+    energyName: 'Seeds',
+    worlds: [
+      {
+        id: 'flowers', name: 'Flower Garden', unlockCost: 0,
+        bodies: [
+          { id: 'daisy', name: 'Daisy', color: '#FFFFFF', landColor: '#FFD700', unlockCost: 0, baseEnergy: 1, baseTap: 1, isStar: true, size: 90, emoji: '🌼' },
+          { id: 'tulip', name: 'Tulip', color: '#FF69B4', landColor: '#FF1493', unlockCost: 50000, baseEnergy: 2, baseTap: 2, size: 100, emoji: '🌷' },
+          { id: 'sunflower', name: 'Sunflower', color: '#FFD700', landColor: '#FFA500', unlockCost: 250000, baseEnergy: 4, baseTap: 4, size: 140, emoji: '🌻' },
+          { id: 'rose', name: 'Rose', color: '#DC143C', landColor: '#B22222', unlockCost: 1000000, baseEnergy: 8, baseTap: 8, size: 110, emoji: '🌹' },
+          { id: 'orchid', name: 'Orchid', color: '#9370DB', landColor: '#8A2BE2', unlockCost: 5000000, baseEnergy: 15, baseTap: 15, size: 120, emoji: '🌺' },
+        ]
+      },
+      {
+        id: 'trees', name: 'Forest', unlockCost: 25000000,
+        bodies: [
+          { id: 'bonsai', name: 'Bonsai', color: '#228B22', landColor: '#8B4513', unlockCost: 0, baseEnergy: 35, baseTap: 35, isStar: true, size: 100, emoji: '🌳' },
+          { id: 'palm', name: 'Palm Tree', color: '#228B22', landColor: '#8B4513', unlockCost: 50000000, baseEnergy: 50, baseTap: 50, size: 180, emoji: '🌴' },
+          { id: 'cherry', name: 'Cherry Blossom', color: '#FFB6C1', landColor: '#8B4513', unlockCost: 100000000, baseEnergy: 80, baseTap: 80, size: 170, emoji: '🌸' },
+          { id: 'redwood', name: 'Redwood', color: '#228B22', landColor: '#654321', unlockCost: 500000000, baseEnergy: 175, baseTap: 175, size: 200, emoji: '🌲' },
+        ]
+      }
     ]
   }
-];
+};
+
+// Get theme data - default to space
+const getThemeData = (themeId) => THEMES[themeId] || THEMES.space;
+
+// For backwards compatibility
+const GALAXIES = THEMES.space.worlds;
 
 // ===========================================
 // UTILITY FUNCTIONS
@@ -455,7 +727,9 @@ const Shop = ({
   onUnlockBody,
   onUnlockGalaxy,
   getTapEnergy,
-  getAutoEnergy
+  getAutoEnergy,
+  worlds,
+  theme
 }) => {
   const [tab, setTab] = useState('upgrades');
 
@@ -472,7 +746,7 @@ const Shop = ({
         </div>
 
         <div className="px-4 py-3 bg-gray-800/50 border-b border-gray-700">
-          <div className="text-yellow-400 text-2xl font-bold">{formatNumber(energy)} Energy</div>
+          <div className="text-yellow-400 text-2xl font-bold">{formatNumber(energy)} {theme.energyName}</div>
           <div className="text-gray-400 text-sm mt-1">
             {currentBody.name}: Tap +{formatNumber(getTapEnergy())} | Auto +{formatNumber(getAutoEnergy())}/s
           </div>
@@ -489,13 +763,13 @@ const Shop = ({
             onClick={() => setTab('bodies')}
             className={`flex-1 py-3 font-bold tracking-wider transition-colors text-sm ${tab === 'bodies' ? 'text-yellow-400 border-b-2 border-yellow-400' : 'text-gray-400'}`}
           >
-            PLANETS
+            {theme.itemLabel.toUpperCase()}S
           </button>
           <button
             onClick={() => setTab('galaxies')}
             className={`flex-1 py-3 font-bold tracking-wider transition-colors text-sm ${tab === 'galaxies' ? 'text-purple-400 border-b-2 border-purple-400' : 'text-gray-400'}`}
           >
-            GALAXIES
+            {theme.worldLabel.toUpperCase()}S
           </button>
         </div>
 
@@ -606,7 +880,7 @@ const Shop = ({
                     </p>
                     {!isUnlocked && !isFirst && (
                       <div className={`mt-2 font-bold ${canAfford ? 'text-yellow-400' : 'text-gray-500'}`}>
-                        {formatNumber(body.unlockCost)} Energy
+                        {formatNumber(body.unlockCost)} {theme.energyName}
                       </div>
                     )}
                   </div>
@@ -615,7 +889,7 @@ const Shop = ({
             );
           })}
 
-          {tab === 'galaxies' && GALAXIES.map((galaxy, index) => {
+          {tab === 'galaxies' && worlds.map((galaxy, index) => {
             const isUnlocked = unlockedGalaxies.includes(galaxy.id);
             const canAfford = energy >= galaxy.unlockCost;
             const isFirst = index === 0;
@@ -644,11 +918,11 @@ const Shop = ({
                       {isUnlocked && !isCurrent && <span className="text-green-400 text-sm">Unlocked</span>}
                     </div>
                     <p className="text-gray-400 text-sm mt-1">
-                      {galaxy.bodies.length} celestial bodies
+                      {galaxy.bodies.length} {theme.itemLabel.toLowerCase()}s
                     </p>
                     {!isUnlocked && !isFirst && (
                       <div className={`mt-2 font-bold ${canAfford ? 'text-purple-400' : 'text-gray-500'}`}>
-                        {formatNumber(galaxy.unlockCost)} Energy
+                        {formatNumber(galaxy.unlockCost)} {theme.energyName}
                       </div>
                     )}
                   </div>
@@ -754,10 +1028,10 @@ const Leaderboard = ({ isOpen, onClose, currentBody, currentGalaxy, deviceId }) 
   );
 };
 
-const Stats = ({ isOpen, onClose, totalEnergy, bodyUpgrades, unlockedBodies, unlockedGalaxies, deviceId, bodyEnergy }) => {
+const Stats = ({ isOpen, onClose, totalEnergy, bodyUpgrades, unlockedBodies, unlockedGalaxies, deviceId, bodyEnergy, worlds, theme }) => {
   if (!isOpen) return null;
 
-  const allBodies = GALAXIES.flatMap(g => g.bodies);
+  const allBodies = worlds.flatMap(g => g.bodies);
 
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/90">
@@ -768,19 +1042,19 @@ const Stats = ({ isOpen, onClose, totalEnergy, bodyUpgrades, unlockedBodies, unl
         </div>
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           <div className="flex justify-between items-center py-2 border-b border-gray-800">
-            <span className="text-gray-400">Total Energy (All Time)</span>
+            <span className="text-gray-400">Total {theme.energyName} (All Time)</span>
             <span className="text-yellow-400 font-bold">{formatNumber(totalEnergy)}</span>
           </div>
           <div className="flex justify-between items-center py-2 border-b border-gray-800">
-            <span className="text-gray-400">Galaxies Unlocked</span>
-            <span className="text-purple-400 font-bold">{unlockedGalaxies.length} / {GALAXIES.length}</span>
+            <span className="text-gray-400">{theme.worldLabel}s Unlocked</span>
+            <span className="text-purple-400 font-bold">{unlockedGalaxies.length} / {worlds.length}</span>
           </div>
           <div className="flex justify-between items-center py-2 border-b border-gray-800">
-            <span className="text-gray-400">Bodies Unlocked</span>
+            <span className="text-gray-400">{theme.itemLabel}s Unlocked</span>
             <span className="text-white font-bold">{unlockedBodies.length} / {allBodies.length}</span>
           </div>
 
-          {GALAXIES.filter(g => unlockedGalaxies.includes(g.id)).map(galaxy => (
+          {worlds.filter(g => unlockedGalaxies.includes(g.id)).map(galaxy => (
             <div key={galaxy.id} className="pt-4">
               <h3 className="text-purple-400 text-sm font-bold uppercase tracking-wider mb-3">{galaxy.name}</h3>
               {galaxy.bodies.filter(b => unlockedBodies.includes(b.id)).map(body => {
@@ -790,7 +1064,7 @@ const Stats = ({ isOpen, onClose, totalEnergy, bodyUpgrades, unlockedBodies, unl
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-4 h-4 rounded-full" style={{ backgroundColor: body.color }} />
                       <span className="text-white font-medium">{body.name}</span>
-                      <span className="text-gray-500 text-xs ml-auto">{formatNumber(bodyEnergy[body.id] || 0)} energy</span>
+                      <span className="text-gray-500 text-xs ml-auto">{formatNumber(bodyEnergy[body.id] || 0)} {theme.energyName.toLowerCase()}</span>
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div className="text-gray-400">⚡ Tap: Lv.{upgrades.tap_power}</div>
@@ -819,6 +1093,10 @@ export default function SpaceClickerGame() {
   const [deviceId, setDeviceId] = useState('');
   const [isClient, setIsClient] = useState(false);
 
+  // Theme state
+  const [currentThemeId, setCurrentThemeId] = useState('space');
+  const [showMenu, setShowMenu] = useState(false);
+
   // Global energy pool
   const [energy, setEnergy] = useState(0);
   const [totalEnergy, setTotalEnergy] = useState(0);
@@ -845,9 +1123,28 @@ export default function SpaceClickerGame() {
   const hasChangesRef = useRef(false);
   const lastSaveTimeRef = useRef(null);
 
-  const currentGalaxy = GALAXIES[currentGalaxyIndex];
-  const currentBody = currentGalaxy.bodies[currentBodyIndex];
+  // Get current theme data
+  const currentTheme = getThemeData(currentThemeId);
+  const currentWorlds = currentTheme.worlds;
+  const currentGalaxy = currentWorlds[currentGalaxyIndex] || currentWorlds[0];
+  const currentBody = currentGalaxy?.bodies?.[currentBodyIndex] || currentGalaxy?.bodies?.[0];
   const currentUpgrades = bodyUpgrades[currentBody?.id] || { tap_power: 0, auto_collect: 0 };
+
+  // Switch theme
+  const switchTheme = (themeId) => {
+    if (themeId !== currentThemeId) {
+      setCurrentThemeId(themeId);
+      setCurrentGalaxyIndex(0);
+      setCurrentBodyIndex(0);
+      const newTheme = getThemeData(themeId);
+      const firstWorld = newTheme.worlds[0];
+      const firstBody = firstWorld.bodies[0];
+      setUnlockedGalaxies([firstWorld.id]);
+      setUnlockedBodies([firstBody.id]);
+      hasChangesRef.current = true;
+    }
+    setShowMenu(false);
+  };
 
   // Initialize client-side
   useEffect(() => {
@@ -1002,7 +1299,7 @@ export default function SpaceClickerGame() {
 
                 // Find the body to get base energy
                 let baseEnergy = 1;
-                for (const galaxy of GALAXIES) {
+                for (const galaxy of currentWorlds) {
                   const body = galaxy.bodies.find(b => b.id === bodyId);
                   if (body) {
                     baseEnergy = body.baseEnergy;
@@ -1174,7 +1471,7 @@ export default function SpaceClickerGame() {
   };
 
   const changeGalaxy = (direction) => {
-    const unlockedIndexes = GALAXIES
+    const unlockedIndexes = currentWorlds
       .map((g, i) => unlockedGalaxies.includes(g.id) ? i : -1)
       .filter(i => i !== -1);
 
@@ -1254,7 +1551,7 @@ export default function SpaceClickerGame() {
   }
 
   return (
-    <div className="relative w-full h-screen bg-black flex flex-col overflow-hidden select-none">
+    <div className={`relative w-full h-screen bg-gradient-to-b ${currentTheme.bgGradient} flex flex-col overflow-hidden select-none`}>
       <style>{`
         @keyframes twinkle {
           0%, 100% { opacity: 0.3; }
@@ -1272,16 +1569,60 @@ export default function SpaceClickerGame() {
 
       <StarField />
 
-      {/* Save status */}
-      <div className="absolute top-4 right-4 z-20">
+      {/* Menu button - top right */}
+      <div className="absolute top-4 right-4 z-30 flex items-center gap-3">
         <div className={`w-2 h-2 rounded-full ${
           saveStatus === 'saved' ? 'bg-green-500' :
           saveStatus === 'saving' ? 'bg-yellow-500 animate-pulse' :
           'bg-orange-500'
         }`} title={saveStatus} />
+        <button
+          onClick={() => setShowMenu(true)}
+          className="p-2 bg-gray-800/80 rounded-lg text-white hover:bg-gray-700 transition-all text-xl"
+        >
+          ☰
+        </button>
       </div>
 
-      {/* Galaxy indicator */}
+      {/* Theme Menu Modal */}
+      {showMenu && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
+          <div className="bg-gray-900 rounded-2xl w-full max-w-md max-h-[85vh] flex flex-col overflow-hidden border border-gray-700">
+            <div className="flex items-center justify-between p-4 border-b border-gray-700">
+              <h2 className="text-2xl font-bold text-white tracking-wider">THEMES</h2>
+              <button onClick={() => setShowMenu(false)} className="text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {Object.values(THEMES).map(theme => (
+                <button
+                  key={theme.id}
+                  onClick={() => switchTheme(theme.id)}
+                  className={`w-full p-4 rounded-xl text-left transition-all ${
+                    theme.id === currentThemeId
+                      ? 'bg-purple-900/50 border-2 border-purple-500'
+                      : 'bg-gray-800 hover:bg-gray-700'
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <span className="text-4xl">{theme.icon}</span>
+                    <div>
+                      <div className="text-white font-bold text-lg">{theme.name}</div>
+                      <div className="text-gray-400 text-sm">
+                        {theme.worlds.length} {theme.worldLabel}s • Collect {theme.energyName}
+                      </div>
+                    </div>
+                    {theme.id === currentThemeId && (
+                      <span className="ml-auto text-purple-400">✓</span>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* World indicator */}
       {unlockedGalaxies.length > 1 && (
         <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
           <button
@@ -1290,7 +1631,7 @@ export default function SpaceClickerGame() {
           >
             ◀
           </button>
-          <span className="text-purple-400 text-sm font-medium">{currentGalaxy.name}</span>
+          <span className="text-purple-400 text-sm font-medium">{currentGalaxy?.name}</span>
           <button
             onClick={() => changeGalaxy('next')}
             className="text-purple-400 hover:text-purple-300 text-xl"
@@ -1305,7 +1646,7 @@ export default function SpaceClickerGame() {
         <div className="text-5xl font-bold text-white tracking-wider">
           {formatNumber(energy)}
         </div>
-        <div className="text-yellow-400 text-xl font-bold tracking-widest mt-1">ENERGY</div>
+        <div className="text-yellow-400 text-xl font-bold tracking-widest mt-1">{currentTheme.energyName.toUpperCase()}</div>
         <div className="text-gray-400 text-sm mt-2">
           Tap +{formatNumber(getTapEnergy())} | Auto +{formatNumber(getAutoEnergy())}/sec
         </div>
@@ -1435,6 +1776,8 @@ export default function SpaceClickerGame() {
         onUnlockGalaxy={unlockGalaxy}
         getTapEnergy={getTapEnergy}
         getAutoEnergy={getAutoEnergy}
+        worlds={currentWorlds}
+        theme={currentTheme}
       />
 
       <Stats
@@ -1446,6 +1789,8 @@ export default function SpaceClickerGame() {
         unlockedGalaxies={unlockedGalaxies}
         deviceId={deviceId}
         bodyEnergy={bodyEnergy}
+        worlds={currentWorlds}
+        theme={currentTheme}
       />
 
       <Leaderboard

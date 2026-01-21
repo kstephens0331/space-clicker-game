@@ -618,9 +618,10 @@ const StarField = () => {
   );
 };
 
-const CelestialBody = ({ body, onClick, size }) => {
+const CelestialBody = ({ body, onClick, size, themeId }) => {
   const [scale, setScale] = useState(1);
   const [ripples, setRipples] = useState([]);
+  const [imageError, setImageError] = useState(false);
   const displaySize = size || body.size || 160;
 
   const handleClick = (e) => {
@@ -633,6 +634,9 @@ const CelestialBody = ({ body, onClick, size }) => {
 
     onClick(e);
   };
+
+  // Use image for non-space themes
+  const useImage = themeId && themeId !== 'space' && body.image && !imageError;
 
   return (
     <div
@@ -655,7 +659,7 @@ const CelestialBody = ({ body, onClick, size }) => {
       />
 
       {/* Solar flares for stars */}
-      {body.isStar && (
+      {body.isStar && !useImage && (
         <div
           className="absolute rounded-full animate-pulse"
           style={{
@@ -682,7 +686,7 @@ const CelestialBody = ({ body, onClick, size }) => {
       ))}
 
       {/* Rings for Saturn/Uranus */}
-      {body.hasRings && (
+      {body.hasRings && !useImage && (
         <div
           className="absolute pointer-events-none"
           style={{
@@ -696,40 +700,61 @@ const CelestialBody = ({ body, onClick, size }) => {
         />
       )}
 
-      {/* Main body */}
-      <div
-        className="relative rounded-full transition-transform duration-100 overflow-hidden"
-        style={{
-          width: displaySize,
-          height: displaySize,
-          backgroundColor: body.color,
-          transform: `scale(${scale})`,
-          boxShadow: body.isStar
-            ? `0 0 ${displaySize * 0.4}px ${body.color}66, inset -${displaySize * 0.1}px -${displaySize * 0.05}px ${displaySize * 0.2}px rgba(255,200,100,0.5)`
-            : `inset -${displaySize * 0.15}px -${displaySize * 0.1}px ${displaySize * 0.3}px rgba(0,0,0,0.5), 0 0 ${displaySize * 0.2}px ${body.color}44`
-        }}
-      >
-        {!body.isStar && (
-          <>
-            <div
-              className="absolute rounded-full"
-              style={{ width: '55%', height: '35%', backgroundColor: body.landColor, top: '18%', left: '12%', opacity: 0.85, borderRadius: '45% 55% 50% 50%' }}
-            />
-            <div
-              className="absolute rounded-full"
-              style={{ width: '35%', height: '28%', backgroundColor: body.landColor, top: '52%', left: '48%', opacity: 0.8, borderRadius: '50% 45% 55% 45%' }}
-            />
-            <div
-              className="absolute rounded-full"
-              style={{ width: '20%', height: '15%', backgroundColor: body.landColor, top: '65%', left: '15%', opacity: 0.7, borderRadius: '40% 60% 50% 50%' }}
-            />
-          </>
-        )}
+      {/* Image display for themed items */}
+      {useImage ? (
         <div
-          className="absolute rounded-full"
-          style={{ width: '25%', height: '25%', background: 'radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%)', top: '10%', left: '15%' }}
-        />
-      </div>
+          className="relative transition-transform duration-100 flex items-center justify-center"
+          style={{
+            width: displaySize,
+            height: displaySize,
+            transform: `scale(${scale})`,
+            filter: `drop-shadow(0 0 ${displaySize * 0.15}px ${body.color}88)`
+          }}
+        >
+          <img
+            src={body.image}
+            alt={body.name}
+            className="max-w-full max-h-full object-contain"
+            style={{ width: '90%', height: '90%' }}
+            onError={() => setImageError(true)}
+          />
+        </div>
+      ) : (
+        /* Main body - planet style fallback */
+        <div
+          className="relative rounded-full transition-transform duration-100 overflow-hidden"
+          style={{
+            width: displaySize,
+            height: displaySize,
+            backgroundColor: body.color,
+            transform: `scale(${scale})`,
+            boxShadow: body.isStar
+              ? `0 0 ${displaySize * 0.4}px ${body.color}66, inset -${displaySize * 0.1}px -${displaySize * 0.05}px ${displaySize * 0.2}px rgba(255,200,100,0.5)`
+              : `inset -${displaySize * 0.15}px -${displaySize * 0.1}px ${displaySize * 0.3}px rgba(0,0,0,0.5), 0 0 ${displaySize * 0.2}px ${body.color}44`
+          }}
+        >
+          {!body.isStar && (
+            <>
+              <div
+                className="absolute rounded-full"
+                style={{ width: '55%', height: '35%', backgroundColor: body.landColor, top: '18%', left: '12%', opacity: 0.85, borderRadius: '45% 55% 50% 50%' }}
+              />
+              <div
+                className="absolute rounded-full"
+                style={{ width: '35%', height: '28%', backgroundColor: body.landColor, top: '52%', left: '48%', opacity: 0.8, borderRadius: '50% 45% 55% 45%' }}
+              />
+              <div
+                className="absolute rounded-full"
+                style={{ width: '20%', height: '15%', backgroundColor: body.landColor, top: '65%', left: '15%', opacity: 0.7, borderRadius: '40% 60% 50% 50%' }}
+              />
+            </>
+          )}
+          <div
+            className="absolute rounded-full"
+            style={{ width: '25%', height: '25%', background: 'radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%)', top: '10%', left: '15%' }}
+          />
+        </div>
+      )}
     </div>
   );
 };
@@ -1200,6 +1225,23 @@ const Stats = ({ isOpen, onClose, totalEnergy, bodyUpgrades, unlockedBodies, unl
 // ===========================================
 // MAIN GAME COMPONENT
 // ===========================================
+// Helper to create default state for a theme
+const getDefaultThemeState = (themeId) => {
+  const theme = getThemeData(themeId);
+  const firstWorld = theme.worlds[0];
+  const firstBody = firstWorld.bodies[0];
+  return {
+    energy: 0,
+    totalEnergy: 0,
+    bodyEnergy: {},
+    bodyUpgrades: {},
+    currentGalaxyIndex: 0,
+    currentBodyIndex: 0,
+    unlockedBodies: [firstBody.id],
+    unlockedGalaxies: [firstWorld.id]
+  };
+};
+
 export default function SpaceClickerGame() {
   const [deviceId, setDeviceId] = useState('');
   const [isClient, setIsClient] = useState(false);
@@ -1208,11 +1250,14 @@ export default function SpaceClickerGame() {
   const [currentThemeId, setCurrentThemeId] = useState('space');
   const [showMenu, setShowMenu] = useState(false);
 
-  // Global energy pool
+  // Per-theme state storage (stores state for each theme separately)
+  const [themeStates, setThemeStates] = useState({});
+
+  // Current theme's energy pool
   const [energy, setEnergy] = useState(0);
   const [totalEnergy, setTotalEnergy] = useState(0);
 
-  // Per-body data
+  // Per-body data (within current theme)
   const [bodyEnergy, setBodyEnergy] = useState({});
   const [bodyUpgrades, setBodyUpgrades] = useState({});
 
@@ -1241,17 +1286,39 @@ export default function SpaceClickerGame() {
   const currentBody = currentGalaxy?.bodies?.[currentBodyIndex] || currentGalaxy?.bodies?.[0];
   const currentUpgrades = bodyUpgrades[currentBody?.id] || { tap_power: 0, auto_collect: 0 };
 
-  // Switch theme
+  // Switch theme - saves current theme state and loads new theme state
   const switchTheme = (themeId) => {
     if (themeId !== currentThemeId) {
+      // Save current theme's state
+      const currentState = {
+        energy,
+        totalEnergy,
+        bodyEnergy,
+        bodyUpgrades,
+        currentGalaxyIndex,
+        currentBodyIndex,
+        unlockedBodies,
+        unlockedGalaxies
+      };
+
+      setThemeStates(prev => ({
+        ...prev,
+        [currentThemeId]: currentState
+      }));
+
+      // Load new theme's state (or create default if first time)
+      const newThemeState = themeStates[themeId] || getDefaultThemeState(themeId);
+
       setCurrentThemeId(themeId);
-      setCurrentGalaxyIndex(0);
-      setCurrentBodyIndex(0);
-      const newTheme = getThemeData(themeId);
-      const firstWorld = newTheme.worlds[0];
-      const firstBody = firstWorld.bodies[0];
-      setUnlockedGalaxies([firstWorld.id]);
-      setUnlockedBodies([firstBody.id]);
+      setEnergy(newThemeState.energy);
+      setTotalEnergy(newThemeState.totalEnergy);
+      setBodyEnergy(newThemeState.bodyEnergy);
+      setBodyUpgrades(newThemeState.bodyUpgrades);
+      setCurrentGalaxyIndex(newThemeState.currentGalaxyIndex);
+      setCurrentBodyIndex(newThemeState.currentBodyIndex);
+      setUnlockedBodies(newThemeState.unlockedBodies);
+      setUnlockedGalaxies(newThemeState.unlockedGalaxies);
+
       hasChangesRef.current = true;
     }
     setShowMenu(false);
@@ -1313,16 +1380,38 @@ export default function SpaceClickerGame() {
   // ===========================================
   // SAVE/LOAD
   // ===========================================
-  const getGameState = useCallback(() => ({
-    energy,
-    totalEnergy,
-    bodyEnergy,
-    bodyUpgrades,
-    currentGalaxyIndex,
-    currentBodyIndex,
-    unlockedBodies,
-    unlockedGalaxies
-  }), [energy, totalEnergy, bodyEnergy, bodyUpgrades, currentGalaxyIndex, currentBodyIndex, unlockedBodies, unlockedGalaxies]);
+  const getGameState = useCallback(() => {
+    // Build complete theme states including current theme's state
+    const currentState = {
+      energy,
+      totalEnergy,
+      bodyEnergy,
+      bodyUpgrades,
+      currentGalaxyIndex,
+      currentBodyIndex,
+      unlockedBodies,
+      unlockedGalaxies
+    };
+
+    const allThemeStates = {
+      ...themeStates,
+      [currentThemeId]: currentState
+    };
+
+    return {
+      currentThemeId,
+      themeStates: allThemeStates,
+      // Keep these at top level for backwards compatibility
+      energy,
+      totalEnergy,
+      bodyEnergy,
+      bodyUpgrades,
+      currentGalaxyIndex,
+      currentBodyIndex,
+      unlockedBodies,
+      unlockedGalaxies
+    };
+  }, [energy, totalEnergy, bodyEnergy, bodyUpgrades, currentGalaxyIndex, currentBodyIndex, unlockedBodies, unlockedGalaxies, currentThemeId, themeStates]);
 
   // Always save to localStorage as backup
   const saveToLocalStorage = useCallback((gameState) => {
@@ -1375,10 +1464,37 @@ export default function SpaceClickerGame() {
       const savedData = await GameAPI.loadGame(deviceId);
 
       if (savedData) {
-        let loadedEnergy = savedData.energy || 0;
-        let loadedTotalEnergy = savedData.totalEnergy || 0;
-        const loadedBodyUpgrades = savedData.bodyUpgrades || savedData.planetUpgrades || {};
-        const loadedBodyEnergy = savedData.bodyEnergy || savedData.planetEnergy || {};
+        // Load theme states if available (new save format)
+        const loadedThemeStates = savedData.themeStates || {};
+        const loadedThemeId = savedData.currentThemeId || 'space';
+
+        // Get current theme's state (from themeStates or fallback to top-level for backwards compatibility)
+        let currentThemeState = loadedThemeStates[loadedThemeId];
+
+        // Backwards compatibility: if no themeStates, use top-level data for space theme
+        if (!currentThemeState) {
+          currentThemeState = {
+            energy: savedData.energy || 0,
+            totalEnergy: savedData.totalEnergy || 0,
+            bodyEnergy: savedData.bodyEnergy || savedData.planetEnergy || {},
+            bodyUpgrades: savedData.bodyUpgrades || savedData.planetUpgrades || {},
+            currentGalaxyIndex: savedData.currentGalaxyIndex || 0,
+            currentBodyIndex: savedData.currentBodyIndex || savedData.currentPlanetIndex || 0,
+            unlockedBodies: savedData.unlockedBodies || savedData.unlockedPlanets || ['sun'],
+            unlockedGalaxies: savedData.unlockedGalaxies || ['solar_system']
+          };
+          // Store it in themeStates
+          loadedThemeStates[loadedThemeId] = currentThemeState;
+        }
+
+        let loadedEnergy = currentThemeState.energy || 0;
+        let loadedTotalEnergy = currentThemeState.totalEnergy || 0;
+        const loadedBodyUpgrades = currentThemeState.bodyUpgrades || {};
+        const loadedBodyEnergy = currentThemeState.bodyEnergy || {};
+
+        // Get worlds for the loaded theme
+        const loadedTheme = getThemeData(loadedThemeId);
+        const loadedWorlds = loadedTheme.worlds;
 
         // Calculate offline earnings
         if (savedData.updatedAt || savedData.savedAt) {
@@ -1410,7 +1526,7 @@ export default function SpaceClickerGame() {
 
                 // Find the body to get base energy
                 let baseEnergy = 1;
-                for (const galaxy of currentWorlds) {
+                for (const galaxy of loadedWorlds) {
                   const body = galaxy.bodies.find(b => b.id === bodyId);
                   if (body) {
                     baseEnergy = body.baseEnergy;
@@ -1442,14 +1558,19 @@ export default function SpaceClickerGame() {
           }
         }
 
+        // Set theme states and current theme
+        setThemeStates(loadedThemeStates);
+        setCurrentThemeId(loadedThemeId);
+
+        // Set current theme's state
         setEnergy(loadedEnergy);
         setTotalEnergy(loadedTotalEnergy);
         setBodyEnergy(loadedBodyEnergy);
         setBodyUpgrades(loadedBodyUpgrades);
-        setCurrentGalaxyIndex(savedData.currentGalaxyIndex || 0);
-        setCurrentBodyIndex(savedData.currentBodyIndex || savedData.currentPlanetIndex || 0);
-        setUnlockedBodies(savedData.unlockedBodies || savedData.unlockedPlanets || ['sun']);
-        setUnlockedGalaxies(savedData.unlockedGalaxies || ['solar_system']);
+        setCurrentGalaxyIndex(currentThemeState.currentGalaxyIndex || 0);
+        setCurrentBodyIndex(currentThemeState.currentBodyIndex || 0);
+        setUnlockedBodies(currentThemeState.unlockedBodies || ['sun']);
+        setUnlockedGalaxies(currentThemeState.unlockedGalaxies || ['solar_system']);
       }
 
       setIsLoading(false);

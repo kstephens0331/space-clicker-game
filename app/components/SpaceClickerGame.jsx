@@ -6,7 +6,10 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 // CONFIGURATION
 // ===========================================
 const API_BASE_URL = '/api/game';
-const SAVE_INTERVAL = 10000;
+const SAVE_INTERVAL = 60000; // Save every 1 minute
+const MAX_OFFLINE_HOURS = 8; // Maximum offline earnings: 8 hours
+const MAX_OFFLINE_MS = MAX_OFFLINE_HOURS * 60 * 60 * 1000;
+const LOCAL_SAVE_KEY_BACKUP = 'space_clicker_backup';
 const LOCAL_DEVICE_KEY = 'space_clicker_device_id';
 const LOCAL_SAVE_KEY = 'space_clicker_local_save';
 
@@ -16,11 +19,51 @@ const LOCAL_SAVE_KEY = 'space_clicker_local_save';
 const UPGRADE_BASE_COSTS = {
   tap_power: 100,
   auto_collect: 250,
+  critical_chance: 500,      // % chance for 5x tap
+  energy_multiplier: 1000,   // Multiplies all energy
+  offline_earnings: 2000,    // Earn while away
+  auto_tap: 5000,            // Automatic tapping
+};
+
+const UPGRADE_DESCRIPTIONS = {
+  tap_power: { name: 'Tap Power', icon: '⚡', desc: 'Increase energy per tap' },
+  auto_collect: { name: 'Auto Collector', icon: '🔄', desc: 'Passive energy per second' },
+  critical_chance: { name: 'Critical Strike', icon: '💥', desc: '+2% chance for 5x energy' },
+  energy_multiplier: { name: 'Energy Amplifier', icon: '✨', desc: '+5% bonus to all energy' },
+  offline_earnings: { name: 'Quantum Harvester', icon: '🌙', desc: '+10% offline earnings' },
+  auto_tap: { name: 'Auto Tapper', icon: '🤖', desc: '+1 automatic tap per second' },
 };
 
 const UPGRADE_COST_MULTIPLIER = 1.15;
 const MILESTONE_10_BONUS = 3;
 const MILESTONE_50_BONUS = 5;
+
+// Which upgrades are available per body type
+const getAvailableUpgrades = (body, galaxy) => {
+  const baseUpgrades = ['tap_power', 'auto_collect'];
+
+  // Stars get critical chance
+  if (body.isStar) {
+    baseUpgrades.push('critical_chance');
+  }
+
+  // Outer planets get energy multiplier
+  if (['jupiter', 'saturn', 'uranus', 'neptune', 'pluto'].includes(body.id)) {
+    baseUpgrades.push('energy_multiplier');
+  }
+
+  // Pluto and beyond get offline earnings
+  if (body.unlockCost >= 10000000000) { // 10B+
+    baseUpgrades.push('offline_earnings');
+  }
+
+  // Other galaxies get auto-tap
+  if (galaxy.id !== 'solar_system') {
+    baseUpgrades.push('auto_tap');
+  }
+
+  return baseUpgrades;
+};
 
 // ===========================================
 // GAME DATA - SOLAR SYSTEM
@@ -458,88 +501,65 @@ const Shop = ({
           {tab === 'upgrades' && (
             <>
               <div className="text-center text-gray-400 text-sm mb-4 p-3 bg-gray-800/50 rounded-lg">
-                Upgrades are specific to each celestial body
+                Upgrades are specific to {currentBody.name}
               </div>
 
-              {/* Tap Power Upgrade */}
-              {(() => {
-                const level = currentUpgrades.tap_power;
-                const cost = calculateUpgradeCost('tap_power', level);
+              {/* Dynamic upgrades based on body/galaxy */}
+              {getAvailableUpgrades(currentBody, currentGalaxy).map(upgradeType => {
+                const info = UPGRADE_DESCRIPTIONS[upgradeType];
+                const level = currentUpgrades[upgradeType] || 0;
+                const cost = calculateUpgradeCost(upgradeType, level);
                 const canAfford = energy >= cost;
                 const multiplier = calculateMilestoneMultiplier(level);
 
+                // Get upgrade-specific details
+                let effectText = info.desc;
+                if (upgradeType === 'tap_power') {
+                  effectText = `+${currentBody.baseTap} tap energy per level`;
+                } else if (upgradeType === 'auto_collect') {
+                  effectText = `+${currentBody.baseEnergy} energy/sec per level`;
+                } else if (upgradeType === 'critical_chance') {
+                  effectText = `${Math.min((level + 1) * 2, 50)}% chance for 5x energy`;
+                } else if (upgradeType === 'energy_multiplier') {
+                  effectText = `+${(level + 1) * 5}% bonus to all energy`;
+                } else if (upgradeType === 'offline_earnings') {
+                  effectText = `${Math.min((level + 1) * 10, 100)}% of auto earnings while away`;
+                } else if (upgradeType === 'auto_tap') {
+                  effectText = `${level + 1} automatic taps per second`;
+                }
+
                 return (
-                  <div className={`p-4 rounded-xl transition-all ${canAfford ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-800/50 opacity-60'}`}>
+                  <div key={upgradeType} className={`p-4 rounded-xl transition-all ${canAfford ? 'bg-gray-800 hover:bg-gray-700 active:bg-gray-600' : 'bg-gray-800/50 opacity-60'}`}>
                     <button
-                      onClick={() => onBuyUpgrade('tap_power')}
+                      onClick={() => onBuyUpgrade(upgradeType)}
                       disabled={!canAfford}
                       className="w-full text-left"
                     >
                       <div className="flex items-start gap-3">
-                        <span className="text-3xl">⚡</span>
+                        <span className="text-3xl">{info.icon}</span>
                         <div className="flex-1">
                           <div className="flex items-center justify-between">
-                            <span className="text-white font-bold">Tap Power</span>
+                            <span className="text-white font-bold">{info.name}</span>
                             <span className="text-gray-400 text-sm">Lv.{level}</span>
                           </div>
-                          <p className="text-gray-400 text-sm mt-1">
-                            +{currentBody.baseTap} base tap energy per level
-                          </p>
-                          {multiplier > 1 && (
+                          <p className="text-gray-400 text-sm mt-1">{effectText}</p>
+                          {multiplier > 1 && ['tap_power', 'auto_collect'].includes(upgradeType) && (
                             <p className="text-purple-400 text-sm mt-1">
-                              Current bonus: {formatNumber(multiplier)}x
+                              Milestone bonus: {formatNumber(multiplier)}x
                             </p>
                           )}
                           <div className={`mt-2 font-bold ${canAfford ? 'text-yellow-400' : 'text-gray-500'}`}>
                             {formatNumber(cost)} Energy
                           </div>
-                          <MilestoneIndicator level={level} />
-                        </div>
-                      </div>
-                    </button>
-                  </div>
-                );
-              })()}
-
-              {/* Auto Collector Upgrade */}
-              {(() => {
-                const level = currentUpgrades.auto_collect;
-                const cost = calculateUpgradeCost('auto_collect', level);
-                const canAfford = energy >= cost;
-                const multiplier = calculateMilestoneMultiplier(level);
-
-                return (
-                  <div className={`p-4 rounded-xl transition-all ${canAfford ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-800/50 opacity-60'}`}>
-                    <button
-                      onClick={() => onBuyUpgrade('auto_collect')}
-                      disabled={!canAfford}
-                      className="w-full text-left"
-                    >
-                      <div className="flex items-start gap-3">
-                        <span className="text-3xl">🔄</span>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <span className="text-white font-bold">Auto Collector</span>
-                            <span className="text-gray-400 text-sm">Lv.{level}</span>
-                          </div>
-                          <p className="text-gray-400 text-sm mt-1">
-                            +{currentBody.baseEnergy} idle energy/sec per level
-                          </p>
-                          {multiplier > 1 && (
-                            <p className="text-purple-400 text-sm mt-1">
-                              Current bonus: {formatNumber(multiplier)}x
-                            </p>
+                          {['tap_power', 'auto_collect'].includes(upgradeType) && (
+                            <MilestoneIndicator level={level} />
                           )}
-                          <div className={`mt-2 font-bold ${canAfford ? 'text-yellow-400' : 'text-gray-500'}`}>
-                            {formatNumber(cost)} Energy
-                          </div>
-                          <MilestoneIndicator level={level} />
                         </div>
                       </div>
                     </button>
                   </div>
                 );
-              })()}
+              })}
             </>
           )}
 
@@ -814,10 +834,12 @@ export default function SpaceClickerGame() {
   const [showShop, setShowShop] = useState(false);
   const [showStats, setShowStats] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showOfflineEarnings, setShowOfflineEarnings] = useState(null);
   const [popups, setPopups] = useState([]);
   const [saveStatus, setSaveStatus] = useState('saved');
 
   const hasChangesRef = useRef(false);
+  const lastSaveTimeRef = useRef(null);
 
   const currentGalaxy = GALAXIES[currentGalaxyIndex];
   const currentBody = currentGalaxy.bodies[currentBodyIndex];
@@ -832,23 +854,49 @@ export default function SpaceClickerGame() {
   // ===========================================
   // GAME CALCULATIONS
   // ===========================================
+
+  // Get energy multiplier from upgrades (5% per level)
+  const getEnergyMultiplier = useCallback(() => {
+    const level = currentUpgrades.energy_multiplier || 0;
+    return 1 + (level * 0.05);
+  }, [currentUpgrades]);
+
+  // Get critical hit chance (2% per level, max 50%)
+  const getCriticalChance = useCallback(() => {
+    const level = currentUpgrades.critical_chance || 0;
+    return Math.min(level * 0.02, 0.5);
+  }, [currentUpgrades]);
+
+  // Get auto-tap rate (taps per second)
+  const getAutoTapRate = useCallback(() => {
+    return currentUpgrades.auto_tap || 0;
+  }, [currentUpgrades]);
+
+  // Get offline earnings percentage (10% per level)
+  const getOfflineEarningsPercent = useCallback(() => {
+    const level = currentUpgrades.offline_earnings || 0;
+    return Math.min(level * 0.1, 1.0); // Max 100%
+  }, [currentUpgrades]);
+
   const getTapEnergy = useCallback(() => {
     if (!currentBody) return 0;
     const base = currentBody.baseTap;
-    const level = currentUpgrades.tap_power;
+    const level = currentUpgrades.tap_power || 0;
     const levelBonus = level * base;
     const milestoneMultiplier = calculateMilestoneMultiplier(level);
-    return Math.floor((base + levelBonus) * milestoneMultiplier);
-  }, [currentBody, currentUpgrades]);
+    const energyMultiplier = getEnergyMultiplier();
+    return Math.floor((base + levelBonus) * milestoneMultiplier * energyMultiplier);
+  }, [currentBody, currentUpgrades, getEnergyMultiplier]);
 
   const getAutoEnergy = useCallback(() => {
     if (!currentBody) return 0;
     const base = currentBody.baseEnergy;
-    const level = currentUpgrades.auto_collect;
+    const level = currentUpgrades.auto_collect || 0;
     const levelBonus = level * base;
     const milestoneMultiplier = calculateMilestoneMultiplier(level);
-    return Math.floor(levelBonus * milestoneMultiplier);
-  }, [currentBody, currentUpgrades]);
+    const energyMultiplier = getEnergyMultiplier();
+    return Math.floor(levelBonus * milestoneMultiplier * energyMultiplier);
+  }, [currentBody, currentUpgrades, getEnergyMultiplier]);
 
   // ===========================================
   // SAVE/LOAD
@@ -864,21 +912,49 @@ export default function SpaceClickerGame() {
     unlockedGalaxies
   }), [energy, totalEnergy, bodyEnergy, bodyUpgrades, currentGalaxyIndex, currentBodyIndex, unlockedBodies, unlockedGalaxies]);
 
+  // Always save to localStorage as backup
+  const saveToLocalStorage = useCallback((gameState) => {
+    try {
+      const saveData = {
+        ...gameState,
+        deviceId,
+        savedAt: new Date().toISOString()
+      };
+      localStorage.setItem(LOCAL_SAVE_KEY, JSON.stringify(saveData));
+      localStorage.setItem(LOCAL_SAVE_KEY_BACKUP, JSON.stringify(saveData));
+    } catch (e) {
+      console.error('LocalStorage save failed:', e);
+    }
+  }, [deviceId]);
+
   const saveGame = useCallback(async (force = false) => {
-    if (!deviceId || (!hasChangesRef.current && !force)) return;
+    if (!deviceId) return;
+    if (!hasChangesRef.current && !force) return;
+
+    const gameState = getGameState();
+
+    // Always save to localStorage first (instant backup)
+    saveToLocalStorage(gameState);
 
     setSaveStatus('saving');
-    const result = await GameAPI.saveGame(deviceId, getGameState());
 
-    if (currentBody) {
-      await GameAPI.submitScore(deviceId, currentGalaxy.id, currentBody.id, bodyEnergy[currentBody.id] || 0);
+    try {
+      const result = await GameAPI.saveGame(deviceId, gameState);
+
+      if (currentBody) {
+        await GameAPI.submitScore(deviceId, currentGalaxy.id, currentBody.id, bodyEnergy[currentBody.id] || 0);
+      }
+
+      setSaveStatus(result.fallback ? 'offline' : 'saved');
+    } catch (error) {
+      console.error('Cloud save failed:', error);
+      setSaveStatus('offline');
     }
 
-    setSaveStatus(result.fallback ? 'offline' : 'saved');
     hasChangesRef.current = false;
-  }, [deviceId, getGameState, currentGalaxy?.id, currentBody, bodyEnergy]);
+  }, [deviceId, getGameState, saveToLocalStorage, currentGalaxy?.id, currentBody, bodyEnergy]);
 
-  // Load game on mount
+  // Load game on mount + calculate offline earnings
   useEffect(() => {
     if (!deviceId) return;
 
@@ -887,10 +963,67 @@ export default function SpaceClickerGame() {
       const savedData = await GameAPI.loadGame(deviceId);
 
       if (savedData) {
-        setEnergy(savedData.energy || 0);
-        setTotalEnergy(savedData.totalEnergy || 0);
-        setBodyEnergy(savedData.bodyEnergy || savedData.planetEnergy || {});
-        setBodyUpgrades(savedData.bodyUpgrades || savedData.planetUpgrades || {});
+        let loadedEnergy = savedData.energy || 0;
+        let loadedTotalEnergy = savedData.totalEnergy || 0;
+        const loadedBodyUpgrades = savedData.bodyUpgrades || savedData.planetUpgrades || {};
+        const loadedBodyEnergy = savedData.bodyEnergy || savedData.planetEnergy || {};
+
+        // Calculate offline earnings
+        if (savedData.updatedAt || savedData.savedAt) {
+          const lastSave = new Date(savedData.updatedAt || savedData.savedAt).getTime();
+          const now = Date.now();
+          const offlineMs = Math.min(now - lastSave, MAX_OFFLINE_MS);
+          const offlineSeconds = Math.floor(offlineMs / 1000);
+
+          if (offlineSeconds > 60) { // Only count if offline > 1 minute
+            // Calculate earnings for each body with offline earnings upgrade
+            let totalOfflineEarnings = 0;
+
+            Object.keys(loadedBodyUpgrades).forEach(bodyId => {
+              const upgrades = loadedBodyUpgrades[bodyId] || {};
+              const offlineLevel = upgrades.offline_earnings || 0;
+
+              if (offlineLevel > 0) {
+                const offlinePercent = Math.min(offlineLevel * 0.1, 1.0);
+                const autoLevel = upgrades.auto_collect || 0;
+
+                // Find the body to get base energy
+                let baseEnergy = 1;
+                for (const galaxy of GALAXIES) {
+                  const body = galaxy.bodies.find(b => b.id === bodyId);
+                  if (body) {
+                    baseEnergy = body.baseEnergy;
+                    break;
+                  }
+                }
+
+                const autoEnergy = autoLevel * baseEnergy * calculateMilestoneMultiplier(autoLevel);
+                const offlineEarnings = Math.floor(autoEnergy * offlineSeconds * offlinePercent);
+                totalOfflineEarnings += offlineEarnings;
+
+                loadedBodyEnergy[bodyId] = (loadedBodyEnergy[bodyId] || 0) + offlineEarnings;
+              }
+            });
+
+            if (totalOfflineEarnings > 0) {
+              loadedEnergy += totalOfflineEarnings;
+              loadedTotalEnergy += totalOfflineEarnings;
+
+              const hours = Math.floor(offlineMs / (1000 * 60 * 60));
+              const mins = Math.floor((offlineMs % (1000 * 60 * 60)) / (1000 * 60));
+
+              setShowOfflineEarnings({
+                amount: totalOfflineEarnings,
+                time: hours > 0 ? `${hours}h ${mins}m` : `${mins}m`
+              });
+            }
+          }
+        }
+
+        setEnergy(loadedEnergy);
+        setTotalEnergy(loadedTotalEnergy);
+        setBodyEnergy(loadedBodyEnergy);
+        setBodyUpgrades(loadedBodyUpgrades);
         setCurrentGalaxyIndex(savedData.currentGalaxyIndex || 0);
         setCurrentBodyIndex(savedData.currentBodyIndex || savedData.currentPlanetIndex || 0);
         setUnlockedBodies(savedData.unlockedBodies || savedData.unlockedPlanets || ['sun']);
@@ -903,16 +1036,34 @@ export default function SpaceClickerGame() {
     loadGame();
   }, [deviceId]);
 
-  // Auto-save interval
+  // Auto-save interval + visibility change + beforeunload
   useEffect(() => {
     if (!deviceId) return;
 
+    // Save every minute
     const interval = setInterval(() => saveGame(), SAVE_INTERVAL);
+
+    // Save when leaving page
     const handleUnload = () => saveGame(true);
     window.addEventListener('beforeunload', handleUnload);
+
+    // Save when tab becomes hidden (switching tabs, minimizing)
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        saveGame(true);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Save when window loses focus
+    const handleBlur = () => saveGame(true);
+    window.addEventListener('blur', handleBlur);
+
     return () => {
       clearInterval(interval);
       window.removeEventListener('beforeunload', handleUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('blur', handleBlur);
     };
   }, [saveGame, deviceId]);
 
@@ -938,10 +1089,18 @@ export default function SpaceClickerGame() {
   // ===========================================
   // GAME ACTIONS
   // ===========================================
-  const handleTap = (e) => {
+  const handleTap = (e, isAutoTap = false) => {
     if (!currentBody) return;
 
-    const tapEnergy = getTapEnergy();
+    let tapEnergy = getTapEnergy();
+    let isCritical = false;
+
+    // Check for critical hit
+    const critChance = getCriticalChance();
+    if (critChance > 0 && Math.random() < critChance) {
+      tapEnergy *= 5;
+      isCritical = true;
+    }
 
     setEnergy(prev => prev + tapEnergy);
     setTotalEnergy(prev => prev + tapEnergy);
@@ -951,16 +1110,34 @@ export default function SpaceClickerGame() {
     }));
     hasChangesRef.current = true;
 
-    const popup = {
-      id: Date.now() + Math.random(),
-      amount: tapEnergy,
-      isCritical: false,
-      x: `${Math.random() * 60 + 20}%`,
-      y: `${Math.random() * 20 + 35}%`
-    };
-    setPopups(prev => [...prev, popup]);
-    setTimeout(() => setPopups(prev => prev.filter(p => p.id !== popup.id)), 1000);
+    // Only show popup for manual taps or critical auto-taps
+    if (!isAutoTap || isCritical) {
+      const popup = {
+        id: Date.now() + Math.random(),
+        amount: tapEnergy,
+        isCritical,
+        x: `${Math.random() * 60 + 20}%`,
+        y: `${Math.random() * 20 + 35}%`
+      };
+      setPopups(prev => [...prev, popup]);
+      setTimeout(() => setPopups(prev => prev.filter(p => p.id !== popup.id)), 1000);
+    }
   };
+
+  // Auto-tap effect
+  useEffect(() => {
+    if (!currentBody) return;
+
+    const autoTapRate = getAutoTapRate();
+    if (autoTapRate > 0) {
+      const interval = setInterval(() => {
+        for (let i = 0; i < autoTapRate; i++) {
+          handleTap(null, true);
+        }
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [currentBody, getAutoTapRate]);
 
   const changeBody = (direction) => {
     const unlockedIndexes = currentGalaxy.bodies
@@ -1120,16 +1297,47 @@ export default function SpaceClickerGame() {
         </div>
       </div>
 
-      {/* Body area */}
-      <div className="relative z-10 flex-1 flex items-center justify-center">
+      {/* Tappable game area - full screen tap zone */}
+      <div
+        className="relative z-10 flex-1 flex items-center justify-center cursor-pointer active:opacity-90 touch-manipulation"
+        onClick={handleTap}
+        onTouchStart={(e) => e.preventDefault()}
+      >
         {popups.map(popup => (
           <EnergyPopup key={popup.id} {...popup} />
         ))}
 
         {currentBody && (
-          <CelestialBody body={currentBody} onClick={handleTap} />
+          <div className="pointer-events-none">
+            <CelestialBody body={currentBody} onClick={() => {}} />
+          </div>
         )}
       </div>
+
+      {/* Offline earnings popup */}
+      {showOfflineEarnings && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <div className="bg-gray-900 rounded-2xl p-6 max-w-sm w-full text-center border border-purple-500">
+            <div className="text-4xl mb-4">🌙</div>
+            <h2 className="text-xl font-bold text-white mb-2">Welcome Back!</h2>
+            <p className="text-gray-400 mb-4">
+              While you were away for {showOfflineEarnings.time}...
+            </p>
+            <div className="text-3xl font-bold text-yellow-400 mb-4">
+              +{formatNumber(showOfflineEarnings.amount)} Energy
+            </div>
+            <p className="text-gray-500 text-sm mb-4">
+              (Max offline time: {MAX_OFFLINE_HOURS} hours)
+            </p>
+            <button
+              onClick={() => setShowOfflineEarnings(null)}
+              className="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl transition-colors"
+            >
+              Collect!
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Body selector */}
       <div className="relative z-10 flex items-center justify-center gap-6 mb-2">
@@ -1169,6 +1377,18 @@ export default function SpaceClickerGame() {
           className="p-4 bg-gray-800/80 rounded-xl text-white hover:bg-gray-700 transition-all active:scale-95"
         >
           📊
+        </button>
+
+        <button
+          onClick={() => saveGame(true)}
+          className={`p-4 rounded-xl text-white transition-all active:scale-95 ${
+            saveStatus === 'saving' ? 'bg-yellow-600/80 animate-pulse' :
+            saveStatus === 'saved' ? 'bg-green-800/80 hover:bg-green-700' :
+            'bg-orange-800/80 hover:bg-orange-700'
+          }`}
+          title={`Status: ${saveStatus} - Click to force save`}
+        >
+          💾
         </button>
 
         <button
